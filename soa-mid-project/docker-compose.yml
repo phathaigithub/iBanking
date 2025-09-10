@@ -1,0 +1,20 @@
+version: "3.8"
+services:
+  user-db:
+    image: mysql:8
+    container_name: user-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: user_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user123
+    ports:
+      - "3307:3306"   # 3307 ngoài host → 3306 trong container
+    volumes:
+      - user-db-data:/var/lib/mysql
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - ./data.sql:/docker-entrypoint-initdb.d/data.sql
+
+volumes:
+  user-db-data:
