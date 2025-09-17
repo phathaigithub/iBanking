@@ -1,0 +1,17 @@
+package com.example.tuition_service.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class TuitionResponse {
+    private String tuitionCode;
+    private String studentId;
+    private String name;
+    private String major;
+    private double amount;
+    private String status;
+}

@@ -1,5 +1,6 @@
 package com.example.student_service.controller;
 
+import com.example.student_service.dto.StudentDTO;
 import com.example.student_service.model.Student;
 import com.example.student_service.service.StudentService;
 import org.springframework.http.ResponseEntity;
@@ -21,14 +22,20 @@ public class StudentController {
     }
 
     @GetMapping
-    ResponseEntity<List<Student>> getAllStudents() {
-        List<Student> students = studentService.getAllStudents();
+    ResponseEntity<List<StudentDTO>> getAllStudents() {
+        List<StudentDTO> students = studentService.getAllStudents();
         return ResponseEntity.ok(students);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Student> getStudentById(@PathVariable("id") int id) {
-        Student student = studentService.findStudentById(id);
+    public ResponseEntity<StudentDTO> getStudentById(@PathVariable("id") int id) {
+        StudentDTO student = studentService.findStudentById(id);
         return ResponseEntity.ok(student);
+    }
+    
+    @GetMapping("/major/{code}")
+    public ResponseEntity<List<StudentDTO>> getStudentsByMajorCode(@PathVariable("code") String code) {
+        List<StudentDTO> students = studentService.findStudentsByMajorCode(code);
+        return ResponseEntity.ok(students);
     }
 }
