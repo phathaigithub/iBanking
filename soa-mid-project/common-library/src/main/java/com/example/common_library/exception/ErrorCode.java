@@ -13,6 +13,7 @@ public enum ErrorCode {
     ACCOUNT_DISABLED(403, "Account is disabled"),
 
     STUDENT_NOT_FOUND(404, "Student not found"),
+    INSUFFICIENT_BALANCE(410,"Do not enought"),
     INTERNAL_ERROR(500, "Internal server error");
 
     private final int status;

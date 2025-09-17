@@ -1,21 +1,19 @@
 package com.example.student_service.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "student")  // bảng student trong schema.sql
+@Table(name = "student")
 public class Student {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // tự tăng trong DB
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Column(nullable = false, unique = true)
@@ -23,13 +21,13 @@ public class Student {
 
     private String name;
     private int age;
-    private String major;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "major_id", nullable = false)
+    private Major major;
 
     @Column(nullable = false, unique = true)
     private String email;
 
     private String phone;
-
-    @Column(name = "tuition_id")
-    private int tuitionId;
 }
