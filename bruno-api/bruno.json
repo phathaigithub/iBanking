@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Tui iBank (SOA Midterm)",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
