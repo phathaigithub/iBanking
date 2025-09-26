@@ -6,6 +6,6 @@ INSERT INTO major (code, name) VALUES
 
 -- Thêm sinh viên mẫu (giả sử id ngành là 1, 2, 3 tương ứng)
 INSERT INTO student (student_code, name, age, major_id, email, phone) VALUES
-                                                                                      ('SV001', 'Nguyễn Văn A', 20, 1, 'a@example.com', '0123456789'),
-                                                                                      ('SV002', 'Trần Thị B', 21, 1, 'b@example.com', '0987654321'),
-                                                                                      ('SV003', 'Lê Văn C', 22, 2, 'c@example.com', '0911223344');
+                                                                                      ('sv1', 'Nguyễn Văn A', 20, 1, 'a@example.com', '0123456789'),
+                                                                                      ('sv2', 'Trần Thị B', 21, 1, 'b@example.com', '0987654321'),
+                                                                                      ('sv3', 'Lê Văn C', 22, 2, 'c@example.com', '0911223344');

@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class StudentDTO {
     @JsonProperty("id")
     private String studentId;
+    private String studentCode;
     private String name;
     private String majorCode;
 }

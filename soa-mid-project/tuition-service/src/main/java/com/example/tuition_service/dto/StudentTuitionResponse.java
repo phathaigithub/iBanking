@@ -10,7 +10,7 @@ public class StudentTuitionResponse {
 
     @Data
     public static class StudentInfo {
-        private String studentId;
+        private String studentCode;
         private String name;
         private String majorCode;
     }

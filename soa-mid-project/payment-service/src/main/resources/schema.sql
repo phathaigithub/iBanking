@@ -1,7 +1,7 @@
+DROP TABLE IF EXISTS payments;
 CREATE TABLE payments (
                           id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                          user_id BIGINT NOT NULL,              -- Người đóng tiền
-                          student_id BIGINT NOT NULL,           -- Sinh viên được đóng
+                          user_id BIGINT NOT NULL,             -- Sinh viên được đóng
                           tuition_code VARCHAR(50) NOT NULL,    -- Mã học phí (vd: 12025sv01)
                           amount DECIMAL(15,2) NOT NULL,        -- Số tiền
 
@@ -12,4 +12,15 @@ CREATE TABLE payments (
 
                           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS transaction_history (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    payment_id BIGINT,
+    user_id BIGINT,
+    tuition_code VARCHAR(50),
+    amount DECIMAL(15,2),
+    status VARCHAR(20),         -- SUCCESS, FAILED
+    message VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

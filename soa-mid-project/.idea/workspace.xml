@@ -5,30 +5,41 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6e3e51be-fba3-41b3-a410-88e79995d7ec" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/payment-service/src/main/resources/data.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/payment-service/src/main/resources/schema.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/student-service/src/main/java/com/example/student_service/model/Major.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tuition-service/src/main/resources/data.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tuition-service/src/main/resources/schema.sql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/common-library/src/main/java/com/example/common_library/exception/ErrorCode.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-library/src/main/java/com/example/common_library/exception/ErrorCode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common-library/src/main/java/com/example/common_library/exception/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-library/src/main/java/com/example/common_library/exception/GlobalExceptionHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notification-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/notification-service/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notification-service/src/main/java/com/example/notification_service/dto/OtpEmailRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/notification-service/src/main/java/com/example/notification_service/dto/OtpEmailRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notification-service/src/main/java/com/example/notification_service/dto/PaymentSuccessEmailRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/notification-service/src/main/java/com/example/notification_service/dto/PaymentSuccessEmailRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notification-service/src/main/java/com/example/notification_service/service/NotificationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/notification-service/src/main/java/com/example/notification_service/service/NotificationService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notification-service/src/main/java/com/example/notification_service/service/impl/NotificationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/notification-service/src/main/java/com/example/notification_service/service/impl/NotificationServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/notification-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/notification-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/student-service/src/main/java/com/example/student_service/controller/StudentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/student-service/src/main/java/com/example/student_service/controller/StudentController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/com/example/payment_service/model/Payment.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/java/com/example/payment_service/model/Payment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/com/example/payment_service/service/PaymentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/java/com/example/payment_service/service/PaymentService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/com/example/payment_service/service/impl/PaymentServiceImp.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/java/com/example/payment_service/service/impl/PaymentServiceImp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/src/main/resources/data.sql" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/resources/data.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/src/main/resources/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/resources/schema.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/student-service/src/main/java/com/example/student_service/dto/StudentDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/student-service/src/main/java/com/example/student_service/dto/StudentDTO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/student-service/src/main/java/com/example/student_service/model/Student.java" beforeDir="false" afterPath="$PROJECT_DIR$/student-service/src/main/java/com/example/student_service/model/Student.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/student-service/src/main/java/com/example/student_service/repository/StudentRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/student-service/src/main/java/com/example/student_service/repository/StudentRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/student-service/src/main/java/com/example/student_service/service/StudentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/student-service/src/main/java/com/example/student_service/service/StudentService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/student-service/src/main/java/com/example/student_service/service/imp/StudentServiceImp.java" beforeDir="false" afterPath="$PROJECT_DIR$/student-service/src/main/java/com/example/student_service/service/imp/StudentServiceImp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/student-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/student-service/src/main/resources/application.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/student-service/src/main/resources/data.sql" beforeDir="false" afterPath="$PROJECT_DIR$/student-service/src/main/resources/data.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/student-service/src/main/resources/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/student-service/src/main/resources/schema.sql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tuition-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/tuition-service/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/controller/TuitionController.java" beforeDir="false" afterPath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/controller/TuitionController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/dto/StudentDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/dto/StudentDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/dto/StudentTuitionResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/dto/StudentTuitionResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/dto/TuitionDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/dto/TuitionDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/dto/TuitionResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/dto/TuitionResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/model/Tuition.java" beforeDir="false" afterPath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/model/Tuition.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/repository/TuitionRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/repository/TuitionRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/service/TuitionService.java" beforeDir="false" afterPath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/service/TuitionService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tuition-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/tuition-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/service/impl/TuitionServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/service/impl/TuitionServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tuition-service/src/main/resources/data.sql" beforeDir="false" afterPath="$PROJECT_DIR$/tuition-service/src/main/resources/data.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tuition-service/src/main/resources/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/tuition-service/src/main/resources/schema.sql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/example/user_service/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/example/user_service/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/example/user_service/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/example/user_service/service/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/example/user_service/service/impl/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/example/user_service/service/impl/UserServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user-service/src/main/resources/data.sql" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/resources/data.sql" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -79,6 +90,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;Spring Boot.ApiGatewayApplication.executor&quot;: &quot;Run&quot;,
     &quot;Spring Boot.EurekaServerApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.NotificationServiceApplication.executor&quot;: &quot;Run&quot;,
     &quot;Spring Boot.PaymentServiceApplication.executor&quot;: &quot;Run&quot;,
     &quot;Spring Boot.StudentServiceApplication.executor&quot;: &quot;Run&quot;,
     &quot;Spring Boot.TuitionServiceApplication.executor&quot;: &quot;Run&quot;,
@@ -117,7 +129,7 @@
       </set>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.TuitionServiceApplication">
+  <component name="RunManager" selected="Spring Boot.PaymentServiceApplication">
     <configuration name="ApiGatewayApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="api-gateway" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.api_gateway.ApiGatewayApplication" />
@@ -202,6 +214,12 @@
       <workItem from="1757826518230" duration="15494000" />
       <workItem from="1758014811542" duration="14154000" />
       <workItem from="1758098043193" duration="3230000" />
+      <workItem from="1758228901010" duration="978000" />
+      <workItem from="1758232007921" duration="2759000" />
+      <workItem from="1758451574057" duration="9800000" />
+      <workItem from="1758461530003" duration="3258000" />
+      <workItem from="1758704080599" duration="4716000" />
+      <workItem from="1758883117910" duration="586000" />
     </task>
     <servers />
   </component>

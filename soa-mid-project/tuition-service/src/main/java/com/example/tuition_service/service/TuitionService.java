@@ -1,13 +1,17 @@
 package com.example.tuition_service.service;
 
-import java.util.List;
+import org.springframework.stereotype.Service;
 
-import com.example.tuition_service.dto.*;
-import com.example.tuition_service.model.Tuition;
+import com.example.tuition_service.dto.StatusUpdateDTO;
+import com.example.tuition_service.dto.StudentTuitionResponse;
+import com.example.tuition_service.dto.TuitionDTO;
+import com.example.tuition_service.dto.TuitionMajorRequest;
+import com.example.tuition_service.dto.TuitionMajorResponse;
 
+@Service
 public interface TuitionService {
     
-    Tuition createTuition(Tuition tuition);
+//    Tuition createTuition(Tuition tuition);
 
     TuitionDTO updateTuitionStatus(String tuitionId, StatusUpdateDTO statusUpdateDTO);
     
@@ -16,4 +20,9 @@ public interface TuitionService {
     TuitionDTO getTuitionByCode(String tuitionCode);
     
     StudentTuitionResponse getStudentTuitions(int studentId);
+
+
+    void deleteTuition(String tuitionId);
+
+    TuitionDTO updateTuition(String tuitionId, TuitionDTO updateDTO);
 }

@@ -20,8 +20,8 @@ public class Tuition {
     @Column(name = "tuition_id")
     private String tuitionId;
     
-    @Column(name = "student_id", nullable = false)
-    private String studentId;
+    @Column(name = "student_code", nullable = false)
+    private String studentCode;
     
     @Column(nullable = false)
     private BigDecimal amount;
@@ -44,4 +44,5 @@ public class Tuition {
             createdAt = LocalDateTime.now();
         }
     }
+
 }

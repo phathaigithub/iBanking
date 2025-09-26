@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import lombok.Data;
 
 @Entity
 @Data
@@ -21,8 +22,7 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId;       // Người đóng tiền
-    private Long studentId;    // Sinh viên
+    private Long userId;       // Sinh viên
     private String tuitionCode;
     private Double amount;
 

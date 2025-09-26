@@ -1,5 +1,8 @@
-package com.example.common_library.exception;
+package com.example.student_service.exception;
 
+import com.example.common_library.exception.ApiException;
+import com.example.common_library.exception.ErrorCode;
+import com.example.common_library.exception.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -8,7 +11,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Bắt riêng ApiException để trả về errorCode và message chuẩn
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ErrorResponse> handleApiException(ApiException e) {
         ErrorCode errorCode = e.getErrorCode();
@@ -20,7 +22,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.valueOf(errorCode.getStatus()));
     }
 
-    // Bắt các exception khác (nếu có)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception e) {
         ErrorResponse error = new ErrorResponse(

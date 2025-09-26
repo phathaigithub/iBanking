@@ -47,6 +47,7 @@ public class StudentServiceImp implements StudentService {
     private StudentDTO convertToDTO(Student student) {
         return new StudentDTO(
             student.getId(),
+            student.getStudentCode(), // truyền mã sinh viên
             student.getName(),
             student.getEmail(),
             student.getMajor() != null ? student.getMajor().getCode() : null,

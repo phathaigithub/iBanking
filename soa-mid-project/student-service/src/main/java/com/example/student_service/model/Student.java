@@ -17,7 +17,7 @@ public class Student {
     private int id;
 
     @Column(nullable = false, unique = true)
-    private String student_code;
+    private String studentCode;
 
     private String name;
     private int age;

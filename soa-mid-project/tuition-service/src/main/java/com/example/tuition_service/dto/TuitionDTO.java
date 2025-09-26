@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class TuitionDTO {
     private String tuitionId;
-    private String studentId;
+    private String studentCode;
     private String semester;
     private BigDecimal amount;
     private String status;

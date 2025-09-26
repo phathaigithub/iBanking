@@ -1,8 +1,11 @@
 package com.example.tuition_service.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,12 +32,7 @@ public class TuitionController {
     public TuitionController(TuitionService tuitionService) {
         this.tuitionService = tuitionService;
     }
-    
-    @PostMapping
-    public ResponseEntity<Tuition> createTuition(@RequestBody Tuition tuition) {
-        Tuition createdTuition = tuitionService.createTuition(tuition);
-        return new ResponseEntity<>(createdTuition, HttpStatus.CREATED);
-    }
+
 
     @GetMapping("/student/{id}")
     public ResponseEntity<StudentTuitionResponse> getStudentTuitions(@PathVariable("id") int id) {
@@ -57,12 +55,30 @@ public class TuitionController {
     }
 
     @GetMapping("/{tuitionCode}")
-    public ResponseEntity<TuitionDTO> getTuitionByCode(@PathVariable String tuitionCode) {
+    public ResponseEntity<TuitionDTO> getTuitionByCode(@PathVariable("tuitionCode") String tuitionCode) {
         TuitionDTO tuition = tuitionService.getTuitionByCode(tuitionCode);
         if (tuition != null) {
             return ResponseEntity.ok(tuition);
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @DeleteMapping("/{tuitionId}")
+    public ResponseEntity<Void> deleteTuition(@PathVariable String tuitionId) {
+        tuitionService.deleteTuition(tuitionId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{tuitionId}")
+    public ResponseEntity<TuitionDTO> updateTuition(@PathVariable String tuitionId, @RequestBody TuitionDTO updateDTO) {
+        TuitionDTO updated = tuitionService.updateTuition(tuitionId, updateDTO);
+        return ResponseEntity.ok(updated);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<TuitionDTO>> getAllTuition() {
+        List<TuitionDTO> tuitionList = tuitionService.getAllTuition();
+        return ResponseEntity.ok(tuitionList);
     }
 }

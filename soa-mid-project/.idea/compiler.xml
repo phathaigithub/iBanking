@@ -27,7 +27,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="api-gateway" options="" />
       <module name="eureka-server" options="" />
-      <module name="notification-service" options="-parameters" />
+      <module name="notification-service" options="" />
       <module name="payment-service" options="" />
       <module name="student-service" options="" />
       <module name="tuition-service" options="" />

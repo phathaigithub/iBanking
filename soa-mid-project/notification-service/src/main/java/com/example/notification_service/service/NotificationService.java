@@ -1,5 +1,9 @@
 package com.example.notification_service.service;
 
-public class NotificationService {
-    
+import com.example.notification_service.dto.OtpEmailRequest;
+import com.example.notification_service.dto.PaymentSuccessEmailRequest;
+
+public interface NotificationService {
+    void sendOtp(OtpEmailRequest request);
+    void sendPaymentSuccess(PaymentSuccessEmailRequest request);
 }

@@ -1,5 +1,7 @@
 package com.example.tuition_service.service.impl;
 
+import com.example.common_library.exception.ApiException;
+import com.example.common_library.exception.ErrorCode;
 import com.example.tuition_service.client.StudentServiceClient;
 import com.example.tuition_service.dto.*;
 import com.example.tuition_service.model.Tuition;
@@ -10,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,20 +24,7 @@ public class TuitionServiceImpl implements TuitionService {
     
     @Autowired
     private StudentServiceClient studentServiceClient;
-    
-    @Override
-    public Tuition createTuition(Tuition tuition) {
-        if (tuition.getTuitionId() == null || tuition.getTuitionId().isEmpty()) {
-            tuition.setTuitionId("T" + LocalDateTime.now().getYear() + "-" + 
-                    String.format("%03d", (int) (Math.random() * 999) + 1));
-        }
-        
-        if (tuition.getStatus() == null || tuition.getStatus().isEmpty()) {
-            tuition.setStatus("Chưa thanh toán");
-        }
-        
-        return tuitionRepository.save(tuition);
-    }
+
     
 
     
@@ -57,48 +45,41 @@ public class TuitionServiceImpl implements TuitionService {
     
     @Override
     public TuitionMajorResponse createTuitionByMajor(TuitionMajorRequest request) {
-        // Lấy danh sách sinh viên từ StudentService
         List<StudentDTO> students = studentServiceClient.getStudentsByMajor(request.getMajorCode());
-        
-        // Danh sách để lưu trữ kết quả
         List<TuitionResponse> tuitionResponses = new ArrayList<>();
-        
-        // Tạo học phí cho từng sinh viên
+
         for (StudentDTO student : students) {
-            // Tạo tuitionCode = semester + studentId
-            String tuitionCode = request.getSemester() + student.getStudentId();
-            
-            // Tạo bản ghi học phí
+            String tuitionCode = request.getSemester() + student.getStudentCode();
+
+            // Kiểm tra đã tồn tại học phí cho sinh viên này trong học kỳ chưa
+            if (tuitionRepository.existsById(tuitionCode)) {
+                throw new ApiException(ErrorCode.BAD_REQUEST, "Tuition already exists for student " + student.getStudentCode() + " in semester " + request.getSemester());
+            }
+
             Tuition tuition = new Tuition();
             tuition.setTuitionId(tuitionCode);
-            tuition.setStudentId(student.getStudentId());
+            tuition.setStudentCode(student.getStudentCode());
             tuition.setSemester(request.getSemester());
             tuition.setAmount(BigDecimal.valueOf(request.getAmount()));
             tuition.setStatus("Chưa thanh toán");
-            tuition.setDueDate(LocalDate.now().plusMonths(1)); // Thời hạn 1 tháng
-            
-            // Lưu vào database
-            tuition = tuitionRepository.save(tuition);
-            
-            // Tạo response
+            tuition.setDueDate(LocalDate.now().plusMonths(1));
+            tuitionRepository.save(tuition);
+
             TuitionResponse tuitionResponse = new TuitionResponse(
                 tuition.getTuitionId(),
-                student.getStudentId(),
+                student.getStudentCode(),
                 student.getName(),
                 student.getMajorCode(),
                 request.getAmount(),
                 tuition.getStatus()
             );
-            
             tuitionResponses.add(tuitionResponse);
         }
-        
-        // Tạo response object
+
         TuitionMajorResponse response = new TuitionMajorResponse();
         response.setSemester(request.getSemester());
         response.setMajorCode(request.getMajorCode());
         response.setTuitions(tuitionResponses);
-        
         return response;
     }
     
@@ -115,13 +96,13 @@ public class TuitionServiceImpl implements TuitionService {
         StudentDTO studentDTO = studentServiceClient.getStudentById(studentId);
 
         // Lấy danh sách học phí từ DB
-        List<Tuition> tuitions = tuitionRepository.findByStudentId(studentDTO.getStudentId());
+        List<Tuition> tuitions = tuitionRepository.findByStudentCode(studentDTO.getStudentCode());
 
         // Chuẩn bị response
         StudentTuitionResponse response = new StudentTuitionResponse();
 
         StudentTuitionResponse.StudentInfo studentInfo = new StudentTuitionResponse.StudentInfo();
-        studentInfo.setStudentId(studentDTO.getStudentId());
+        studentInfo.setStudentCode(studentDTO.getStudentCode());
         studentInfo.setName(studentDTO.getName());
         studentInfo.setMajorCode(studentDTO.getMajorCode());
         response.setStudent(studentInfo);
@@ -143,10 +124,35 @@ public class TuitionServiceImpl implements TuitionService {
     private TuitionDTO convertToDTO(Tuition tuition) {
         TuitionDTO dto = new TuitionDTO();
         dto.setTuitionId(tuition.getTuitionId());
-        dto.setStudentId(tuition.getStudentId());
+        dto.setStudentCode(tuition.getStudentCode());
         dto.setSemester(tuition.getSemester());
         dto.setAmount(tuition.getAmount());
         dto.setStatus(tuition.getStatus());
         return dto;
+    }
+
+    @Override
+    public void deleteTuition(String tuitionId) {
+        if (!tuitionRepository.existsById(tuitionId)) {
+            throw new ApiException(ErrorCode.TUITION_NOT_FOUND);
+        }
+        tuitionRepository.deleteById(tuitionId);
+    }
+
+    @Override
+    public TuitionDTO updateTuition(String tuitionId, TuitionDTO updateDTO) {
+        Tuition tuition = tuitionRepository.findById(tuitionId)
+            .orElseThrow(() -> new ApiException(ErrorCode.TUITION_NOT_FOUND));
+        if (updateDTO.getAmount() != null) {
+            tuition.setAmount(updateDTO.getAmount());
+        }
+        if (updateDTO.getStatus() != null) {
+            tuition.setStatus(updateDTO.getStatus());
+        }
+        if (updateDTO.getSemester() != null) {
+            tuition.setSemester(updateDTO.getSemester());
+        }
+        tuition = tuitionRepository.save(tuition);
+        return convertToDTO(tuition);
     }
 }
