@@ -1,0 +1,23 @@
+meta {
+  name: Create Tuition for student by major
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:8080/tuition-service/api/tuition/create-by-major
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "semester": "22025",
+    "majorCode": "CNTT",
+    "amount": 1000
+  }
+}
+
+settings {
+  encodeUrl: true
+}

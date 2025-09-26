@@ -31,16 +31,11 @@ public class TuitionServiceImpl implements TuitionService {
     @Override
     public TuitionDTO updateTuitionStatus(String tuitionId, StatusUpdateDTO statusUpdateDTO) {
         Tuition tuition = tuitionRepository.findById(tuitionId)
-                .orElseThrow(() -> new RuntimeException("Tuition not found with id: " + tuitionId));
-        
+                .orElseThrow(() -> new ApiException(ErrorCode.TUITION_NOT_FOUND));
         tuition.setStatus(statusUpdateDTO.getStatus());
         tuition = tuitionRepository.save(tuition);
-        
-        TuitionDTO responseDTO = new TuitionDTO();
-        responseDTO.setTuitionId(tuition.getTuitionId());
-        responseDTO.setStatus(tuition.getStatus());
-        
-        return responseDTO;
+        // Trả về đầy đủ thông tin
+        return convertToDTO(tuition);
     }
     
     @Override
@@ -154,5 +149,13 @@ public class TuitionServiceImpl implements TuitionService {
         }
         tuition = tuitionRepository.save(tuition);
         return convertToDTO(tuition);
+    }
+
+    @Override
+    public List<TuitionDTO> getAllTuition() {
+        List<Tuition> tuitions = tuitionRepository.findAll();
+        return tuitions.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 }

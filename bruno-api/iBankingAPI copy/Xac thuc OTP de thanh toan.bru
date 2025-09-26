@@ -1,0 +1,21 @@
+meta {
+  name: Xac thuc OTP de thanh toan
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:8080/payment-service/api/payments/2/verify-otp
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "otpCode": "319155"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

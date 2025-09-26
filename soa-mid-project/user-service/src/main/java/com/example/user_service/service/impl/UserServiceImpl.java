@@ -2,6 +2,7 @@ package com.example.user_service.service.impl;
 
 import com.example.common_library.exception.ApiException;
 import com.example.common_library.exception.ErrorCode;
+import com.example.user_service.config.JwtService;
 import com.example.user_service.dto.UserResponse;
 import com.example.user_service.model.User;
 import com.example.user_service.repository.UserRepository;
@@ -53,6 +54,7 @@ public class UserServiceImpl implements UserService {
         user.setBalance(user.getBalance().subtract(amount));
         userRepository.save(user);
     }
+
 }
 
 

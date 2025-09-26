@@ -5,6 +5,7 @@ import com.example.user_service.dto.AuthRequest;
 import com.example.user_service.dto.AuthResponse;
 import com.example.user_service.model.User;
 import com.example.user_service.service.AuthService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,12 +21,16 @@ public class AuthController {
         this.jwtService = jwtService;
     }
 
-
-
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest) {
         User user = authService.login(authRequest.getUsername(), authRequest.getPassword());
         String token = jwtService.generateToken(user);
         return ResponseEntity.ok(new AuthResponse(token));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<User> getMe(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+        User user = authService.getUserFromToken(authHeader, jwtService);
+        return ResponseEntity.ok(user);
     }
 }

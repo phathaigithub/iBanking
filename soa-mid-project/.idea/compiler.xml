@@ -30,7 +30,7 @@
       <module name="notification-service" options="" />
       <module name="payment-service" options="" />
       <module name="student-service" options="" />
-      <module name="tuition-service" options="" />
+      <module name="tuition-service" options="-parameters" />
       <module name="user-service" options="" />
     </option>
   </component>

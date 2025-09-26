@@ -8,6 +8,8 @@ import com.example.tuition_service.dto.TuitionDTO;
 import com.example.tuition_service.dto.TuitionMajorRequest;
 import com.example.tuition_service.dto.TuitionMajorResponse;
 
+import java.util.List;
+
 @Service
 public interface TuitionService {
     
@@ -25,4 +27,6 @@ public interface TuitionService {
     void deleteTuition(String tuitionId);
 
     TuitionDTO updateTuition(String tuitionId, TuitionDTO updateDTO);
+
+    List<TuitionDTO> getAllTuition();
 }

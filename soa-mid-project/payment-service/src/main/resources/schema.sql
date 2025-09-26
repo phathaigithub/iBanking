@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS payments;
+DROP TABLE IF EXISTS transaction_history;
 CREATE TABLE payments (
                           id BIGINT AUTO_INCREMENT PRIMARY KEY,
                           user_id BIGINT NOT NULL,             -- Sinh viên được đóng
@@ -14,7 +15,7 @@ CREATE TABLE payments (
                           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS transaction_history (
+CREATE TABLE transaction_history (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     payment_id BIGINT,
     user_id BIGINT,

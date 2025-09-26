@@ -42,7 +42,7 @@ public class TuitionController {
     
     @PatchMapping("/{tuitionId}/status")
     public ResponseEntity<TuitionDTO> updateTuitionStatus(
-            @PathVariable String tuitionId,
+            @PathVariable("tuitionId") String tuitionId,
             @RequestBody StatusUpdateDTO statusUpdateDTO) {
         TuitionDTO updatedTuition = tuitionService.updateTuitionStatus(tuitionId, statusUpdateDTO);
         return ResponseEntity.ok(updatedTuition);

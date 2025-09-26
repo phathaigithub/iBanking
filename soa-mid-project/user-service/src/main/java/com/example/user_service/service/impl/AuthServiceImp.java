@@ -2,6 +2,7 @@ package com.example.user_service.service.impl;
 
 import com.example.common_library.exception.ApiException;
 import com.example.common_library.exception.ErrorCode;
+import com.example.user_service.config.JwtService;
 import com.example.user_service.model.User;
 import com.example.user_service.repository.UserRepository;
 import com.example.user_service.service.AuthService;
@@ -38,5 +39,13 @@ public class AuthServiceImp implements AuthService {
             throw new ApiException(ErrorCode.INVALID_CREDENTIALS);
         }
         return user;
+    }
+
+    @Override
+    public User getUserFromToken(String authHeader, JwtService jwtService) {
+        String token = authHeader.replace("Bearer ", "");
+        String username = jwtService.extractUsername(token);
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
     }
 }
