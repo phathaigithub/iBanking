@@ -83,7 +83,7 @@ public class PaymentServiceImp implements PaymentService {
         otpRequest.setToEmail(user.getEmail());
         otpRequest.setOtpCode(otp);
         otpRequest.setExpireMinutes(5);
-        restTemplate.postForObject("http://localhost:8080/notification-service/api/notification/send-otp", otpRequest, Void.class);
+        restTemplate.postForObject("http://localhost:8086/notification-service/api/notification/send-otp", otpRequest, Void.class);
 
         return payment;
     }
@@ -107,7 +107,7 @@ public class PaymentServiceImp implements PaymentService {
         DeductBalanceRequest deductRequest = new DeductBalanceRequest();
         deductRequest.setAmount(BigDecimal.valueOf(payment.getAmount()));
         try {
-            restTemplate.postForObject("http://localhost:8080/user-service/api/users/" + payment.getUserId() + "/deduct-balance", deductRequest, Void.class);
+            restTemplate.postForObject("http://localhost:8086/user-service/api/users/" + payment.getUserId() + "/deduct-balance", deductRequest, Void.class);
         } catch (Exception e) {
             throw new ApiException(ErrorCode.INSUFFICIENT_BALANCE);
         }
@@ -126,7 +126,7 @@ public class PaymentServiceImp implements PaymentService {
         successRequest.setTuitionCode(payment.getTuitionCode());
         successRequest.setAmount(payment.getAmount());
         successRequest.setSemester(getSemester(payment.getTuitionCode()));
-        restTemplate.postForObject("http://localhost:8080/notification-service/api/notification/payment-success", successRequest, Void.class);
+        restTemplate.postForObject("http://localhost:8086/notification-service/api/notification/payment-success", successRequest, Void.class);
 
         // Cập nhật trạng thái tuition sang "Đã thanh toán"
         updateTuitionStatus(payment.getTuitionCode(), "Đã thanh toán");
@@ -167,14 +167,14 @@ public class PaymentServiceImp implements PaymentService {
 
     @Override
     public List<TuitionDTO> getAllTuition() {
-        String url = "http://localhost:8080/tuition-service/api/tuition/all";
+        String url = "http://localhost:8086/tuition-service/api/tuition/all";
         TuitionDTO[] tuitions = restTemplate.getForObject(url, TuitionDTO[].class);
         return tuitions != null ? Arrays.asList(tuitions) : new ArrayList<>();
     }
 
     // Helper methods
     private TuitionDTO getTuition(String tuitionCode) {
-        String url = "http://localhost:8080/tuition-service/api/tuition/" + tuitionCode;
+        String url = "http://localhost:8086/tuition-service/api/tuition/" + tuitionCode;
         try {
             return restTemplate.getForObject(url, TuitionDTO.class);
         } catch (Exception e) {
@@ -183,7 +183,7 @@ public class PaymentServiceImp implements PaymentService {
     }
 
     private UserResponse getUser(Long userId) {
-        String url = "http://localhost:8080/user-service/api/users/" + userId;
+        String url = "http://localhost:8086/user-service/api/users/" + userId;
         try {
             return restTemplate.getForObject(url, UserResponse.class);
         } catch (Exception e) {
@@ -209,7 +209,7 @@ public class PaymentServiceImp implements PaymentService {
     }
 
     private void updateTuitionStatus(String tuitionCode, String newStatus) {
-        String url = "http://localhost:8080/tuition-service/api/tuition/" + tuitionCode + "/status";
+        String url = "http://localhost:8086/tuition-service/api/tuition/" + tuitionCode + "/status";
         StatusUpdateDTO statusUpdateDTO = new StatusUpdateDTO();
         statusUpdateDTO.setStatus(newStatus);
         try {
