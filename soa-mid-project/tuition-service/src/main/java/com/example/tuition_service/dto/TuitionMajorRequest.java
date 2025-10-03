@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TuitionMajorRequest {
-    private String semester;
+    private String semester;    // Định dạng: [1-3][YYYY] (VD: 12025)
     private String majorCode;
     private double amount;
+    private String dueDate;     // Định dạng: dd-MM-yyyy (VD: 15-10-2025)
 }

@@ -2,13 +2,17 @@ package com.example.tuition_service.service.impl;
 
 import com.example.common_library.exception.ApiException;
 import com.example.common_library.exception.ErrorCode;
+import com.example.tuition_service.client.NotificationServiceClient;
 import com.example.tuition_service.client.StudentServiceClient;
 import com.example.tuition_service.dto.*;
 import com.example.tuition_service.model.Tuition;
 import com.example.tuition_service.repository.TuitionRepository;
+import com.example.tuition_service.service.OtpService;
 import com.example.tuition_service.service.TuitionService;
+import com.example.tuition_service.util.TuitionValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -24,10 +28,16 @@ public class TuitionServiceImpl implements TuitionService {
     
     @Autowired
     private StudentServiceClient studentServiceClient;
-
     
+    @Autowired
+    private TuitionValidator tuitionValidator;  // Thêm validator
 
-    
+    @Autowired
+    private OtpService otpService;
+
+    @Autowired
+    private NotificationServiceClient notificationServiceClient;
+
     @Override
     public TuitionDTO updateTuitionStatus(String tuitionId, StatusUpdateDTO statusUpdateDTO) {
         Tuition tuition = tuitionRepository.findById(tuitionId)
@@ -40,7 +50,30 @@ public class TuitionServiceImpl implements TuitionService {
     
     @Override
     public TuitionMajorResponse createTuitionByMajor(TuitionMajorRequest request) {
-        List<StudentDTO> students = studentServiceClient.getStudentsByMajor(request.getMajorCode());
+        // Validate input
+        tuitionValidator.validateSemester(request.getSemester());
+        LocalDate dueDate = tuitionValidator.validateAndParseDueDate(request.getDueDate());
+        
+        // Lấy danh sách sinh viên theo ngành
+        List<StudentDTO> students;
+        try {
+            students = studentServiceClient.getStudentsByMajor(request.getMajorCode());
+        } catch (HttpClientErrorException.NotFound e) {
+            // Xử lý riêng lỗi 404 từ student-service
+            throw new ApiException(ErrorCode.MAJOR_NOT_FOUND, 
+                "Major with code '" + request.getMajorCode() + "' not found");
+        } catch (Exception e) {
+            // Xử lý các lỗi khác (500, timeout, ...)
+            throw new ApiException(ErrorCode.INTERNAL_ERROR, 
+                "Failed to get students for major '" + request.getMajorCode() + "': " + e.getMessage());
+        }
+        
+        // Kiểm tra ngành học có sinh viên hay không (chỉ chạy khi không có exception ở trên)
+        if (students == null || students.isEmpty()) {
+            throw new ApiException(ErrorCode.BAD_REQUEST, 
+                "Major '" + request.getMajorCode() + "' exists but has no students");
+        }
+        
         List<TuitionResponse> tuitionResponses = new ArrayList<>();
 
         for (StudentDTO student : students) {
@@ -48,7 +81,9 @@ public class TuitionServiceImpl implements TuitionService {
 
             // Kiểm tra đã tồn tại học phí cho sinh viên này trong học kỳ chưa
             if (tuitionRepository.existsById(tuitionCode)) {
-                throw new ApiException(ErrorCode.BAD_REQUEST, "Tuition already exists for student " + student.getStudentCode() + " in semester " + request.getSemester());
+                throw new ApiException(ErrorCode.BAD_REQUEST, 
+                    "Tuition already exists for student " + student.getStudentCode() + 
+                    " in semester " + request.getSemester());
             }
 
             Tuition tuition = new Tuition();
@@ -57,8 +92,8 @@ public class TuitionServiceImpl implements TuitionService {
             tuition.setSemester(request.getSemester());
             tuition.setAmount(BigDecimal.valueOf(request.getAmount()));
             tuition.setStatus("Chưa thanh toán");
-            tuition.setDueDate(LocalDate.now().plusMonths(1));
-            tuitionRepository.save(tuition);
+            tuition.setDueDate(dueDate);  // Sử dụng dueDate từ request
+            tuition = tuitionRepository.save(tuition);
 
             TuitionResponse tuitionResponse = new TuitionResponse(
                 tuition.getTuitionId(),
@@ -100,14 +135,18 @@ public class TuitionServiceImpl implements TuitionService {
         studentInfo.setStudentCode(studentDTO.getStudentCode());
         studentInfo.setName(studentDTO.getName());
         studentInfo.setMajorCode(studentDTO.getMajorCode());
+        studentInfo.setMajorName(studentDTO.getMajorName());
+        studentInfo.setEmail(studentDTO.getEmail());
         response.setStudent(studentInfo);
 
         List<StudentTuitionResponse.TuitionInfo> tuitionInfos = tuitions.stream().map(t -> {
             StudentTuitionResponse.TuitionInfo info = new StudentTuitionResponse.TuitionInfo();
-            info.setTuitionCode(t.getTuitionId());
+            info.setTuitionId(t.getTuitionId());
             info.setSemester(t.getSemester());
-            info.setAmount(t.getAmount().doubleValue());
+            info.setAmount(t.getAmount());
             info.setStatus(t.getStatus());
+            info.setDueDate(t.getDueDate());
+            info.setCreatedAt(t.getCreatedAt());
             return info;
         }).collect(Collectors.toList());
 
@@ -118,7 +157,7 @@ public class TuitionServiceImpl implements TuitionService {
     
     private TuitionDTO convertToDTO(Tuition tuition) {
         TuitionDTO dto = new TuitionDTO();
-        dto.setTuitionId(tuition.getTuitionId());
+        dto.setTuitionCode(tuition.getTuitionId());
         dto.setStudentCode(tuition.getStudentCode());
         dto.setSemester(tuition.getSemester());
         dto.setAmount(tuition.getAmount());
@@ -157,5 +196,83 @@ public class TuitionServiceImpl implements TuitionService {
         return tuitions.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void requestTuitionInquiry(String studentCode) {
+        // Lấy thông tin sinh viên
+        StudentDTO student;
+        try {
+            student = studentServiceClient.getStudentByCode(studentCode);
+        } catch (Exception e) {
+            if (e instanceof ApiException) {
+                throw e;
+            }
+            throw new ApiException(ErrorCode.STUDENT_NOT_FOUND, 
+                "Student with code '" + studentCode + "' not found");
+        }
+        
+        // Sinh OTP
+        String otpCode = otpService.generateOtp(studentCode);
+        
+
+        try {
+            notificationServiceClient.sendInquiryOtp(student.getEmail(), otpCode, student.getName());
+        } catch (Exception e) {
+            throw new ApiException(ErrorCode.INTERNAL_ERROR, 
+                "Failed to send OTP email: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public StudentTuitionResponse verifyOtpAndGetTuitions(String studentCode, String otpCode) {
+        // Verify OTP
+        if (!otpService.verifyOtp(studentCode, otpCode)) {
+            throw new ApiException(ErrorCode.INVALID_OTP, "Invalid or expired OTP");
+        }
+        
+        // Lấy thông tin sinh viên
+        StudentDTO student;
+        try {
+            student = studentServiceClient.getStudentByCode(studentCode);
+        } catch (Exception e) {
+            if (e instanceof ApiException) {
+                throw e;
+            }
+            throw new ApiException(ErrorCode.STUDENT_NOT_FOUND, 
+                "Student with code '" + studentCode + "' not found");
+        }
+        
+        // Lấy danh sách học phí
+        List<Tuition> tuitions = tuitionRepository.findByStudentCode(studentCode);
+        
+        // Chuẩn bị response
+        StudentTuitionResponse response = new StudentTuitionResponse();
+        
+        StudentTuitionResponse.StudentInfo studentInfo = new StudentTuitionResponse.StudentInfo();
+        studentInfo.setStudentCode(student.getStudentCode());
+        studentInfo.setName(student.getName());
+        studentInfo.setMajorCode(student.getMajorCode());
+        studentInfo.setMajorName(student.getMajorName());
+        studentInfo.setEmail(student.getEmail());
+        response.setStudent(studentInfo);
+        
+        List<StudentTuitionResponse.TuitionInfo> tuitionInfos = tuitions.stream().map(t -> {
+            StudentTuitionResponse.TuitionInfo info = new StudentTuitionResponse.TuitionInfo();
+            info.setTuitionId(t.getTuitionId());
+            info.setSemester(t.getSemester());
+            info.setAmount(t.getAmount());
+            info.setStatus(t.getStatus());
+            info.setDueDate(t.getDueDate());
+            info.setCreatedAt(t.getCreatedAt());
+            return info;
+        }).collect(Collectors.toList());
+        
+        response.setTuitions(tuitionInfos);
+        
+        // Xóa OTP sau khi verify thành công
+        otpService.removeOtp(studentCode);
+        
+        return response;
     }
 }

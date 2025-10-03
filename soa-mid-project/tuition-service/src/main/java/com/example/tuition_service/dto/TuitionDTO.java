@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TuitionDTO {
-    private String tuitionId;
+    private String tuitionCode; 
     private String studentCode;
     private String semester;
     private BigDecimal amount;

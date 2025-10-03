@@ -1,7 +1,7 @@
 meta {
-  name: Create Tuition for student by major
+  name: Tạo học phí theo ngành học
   type: http
-  seq: 3
+  seq: 5
 }
 
 post {
@@ -12,9 +12,10 @@ post {
 
 body:json {
   {
-    "semester": "22025",
-    "majorCode": "CNTT",
-    "amount": 1000
+      "semester": "12025",
+      "majorCode": "CNTT",
+      "amount": 50000,
+      "dueDate": "15-12-2025"
   }
 }
 

@@ -35,4 +35,19 @@ public class NotificationServiceImpl implements NotificationService {
                 "\nHọc kỳ: HK" + request.getSemester().charAt(0) + " năm " + request.getSemester().substring(1));
         mailSender.send(message);
     }
+
+    @Override
+    public void sendInquiryOtp(OtpEmailRequest request) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(request.getToEmail());
+        message.setSubject("Mã OTP tra cứu thông tin học phí");
+        message.setText("Chào sinh viên" + ",\n\n" +
+                "Bạn vừa yêu cầu tra cứu thông tin học phí.\n" +
+                "Mã OTP của bạn là: " + request.getOtpCode() + "\n" +
+                "Thời hạn: " + request.getExpireMinutes() + " phút.\n\n" +
+                "Vui lòng không chia sẻ mã này với bất kỳ ai.\n\n" +
+                "Trân trọng,\n" +
+                "Hệ thống iBanking");
+        mailSender.send(message);
+    }
 }

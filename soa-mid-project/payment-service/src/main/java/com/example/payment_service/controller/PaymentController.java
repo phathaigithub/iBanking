@@ -33,14 +33,19 @@ public class PaymentController {
     }
 
     // Xác thực OTP
-    @PostMapping("/{paymentId}/verify-otp")
-    public ResponseEntity<Payment> verifyOtp(@PathVariable("paymentId") Long paymentId, @RequestBody VerifyOtpRequest request) {
+    @PostMapping("/{id}/verify-otp")
+    public ResponseEntity<Payment> verifyOtp(
+        @PathVariable("id") Long paymentId,
+        @RequestBody VerifyOtpRequest request) {
+
         Payment payment = paymentService.verifyOtpAndReturn(paymentId, request.getOtpCode());
         return ResponseEntity.ok(payment);
     }
 
     @GetMapping("/history/{userId}")
-    public ResponseEntity<List<TransactionHistoryDTO>> getTransactionHistory(@PathVariable Long userId) {
+    public ResponseEntity<List<TransactionHistoryDTO>> getTransactionHistory(
+        @PathVariable("userId") Long userId) {
+
         List<TransactionHistoryDTO> history = paymentService.getTransactionHistoryWithTuition(userId);
         return ResponseEntity.ok(history);
     }

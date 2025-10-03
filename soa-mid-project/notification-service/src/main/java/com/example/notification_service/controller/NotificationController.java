@@ -29,4 +29,10 @@ public class NotificationController {
         notificationService.sendPaymentSuccess(request);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/send-inquiry-otp")
+    public ResponseEntity<Void> sendInquiryOtp(@RequestBody OtpEmailRequest request) {
+        notificationService.sendInquiryOtp(request);
+        return ResponseEntity.ok().build();
+    }
 }

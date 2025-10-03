@@ -15,4 +15,6 @@ public class StudentDTO {
     private String studentCode;
     private String name;
     private String majorCode;
+    private String majorName;  
+    private String email;     
 }

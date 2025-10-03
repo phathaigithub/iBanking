@@ -29,7 +29,6 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
-    private String otpCode;
     private LocalDateTime otpExpiredAt;
 
     private LocalDateTime createdAt;

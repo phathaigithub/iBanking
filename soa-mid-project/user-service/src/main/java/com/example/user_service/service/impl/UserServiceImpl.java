@@ -8,6 +8,8 @@ import com.example.user_service.model.User;
 import com.example.user_service.repository.UserRepository;
 import com.example.user_service.service.UserService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -45,8 +47,9 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public void deductBalance(Long userId, BigDecimal amount) {
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByIdForUpdate(userId)
             .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
         if (user.getBalance().compareTo(amount) < 0) {
             throw new ApiException(ErrorCode.INSUFFICIENT_BALANCE);

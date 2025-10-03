@@ -29,4 +29,7 @@ public interface TuitionService {
     TuitionDTO updateTuition(String tuitionId, TuitionDTO updateDTO);
 
     List<TuitionDTO> getAllTuition();
+
+    void requestTuitionInquiry(String studentCode);
+    StudentTuitionResponse verifyOtpAndGetTuitions(String studentCode, String otpCode);
 }

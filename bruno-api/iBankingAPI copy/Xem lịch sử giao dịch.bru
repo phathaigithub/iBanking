@@ -1,0 +1,15 @@
+meta {
+  name: Xem lịch sử giao dịch
+  type: http
+  seq: 8
+}
+
+get {
+  url: http://localhost:8080/payment-service/api/payments/history/2
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

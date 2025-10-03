@@ -1,0 +1,26 @@
+meta {
+  name: Tạo sinh viên mới
+  type: http
+  seq: 10
+}
+
+post {
+  url: http://localhost:8080/student-service/api/students
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+      "studentCode": "sv004",
+      "name": "Nguyễn Văn D",
+      "age": 21,
+      "email": "nvd@email.com",
+      "phone": "0987654321",
+      "majorCode": "CNTT"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

@@ -18,6 +18,7 @@ import com.example.tuition_service.dto.TuitionDTO;
 import com.example.user_service.dto.DeductBalanceRequest;
 import com.example.user_service.dto.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
@@ -29,9 +30,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class PaymentServiceImp implements PaymentService {
+
+    private static final String OTP_PREFIX = "payment:otp:";
+    private static final int OTP_EXPIRE_MINUTES = 1;
 
     @Autowired
     private PaymentRepository paymentRepository;
@@ -41,97 +46,182 @@ public class PaymentServiceImp implements PaymentService {
 
     @Autowired
     private TransactionHistoryRepository transactionHistoryRepository;
+    
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
     @Override
     public Payment createPayment(CreatePaymentRequest request) {
-        // Kiểm tra học phí tồn tại
-        TuitionDTO tuition = getTuition(request.getTuitionCode());
-        if (tuition == null) {
-            throw new ApiException(ErrorCode.TUITION_NOT_FOUND);
-        }
-        // Kiểm tra số tiền phải >= học phí
-        BigDecimal paymentAmount = BigDecimal.valueOf(request.getAmount());
-        if (paymentAmount.compareTo(tuition.getAmount()) < 0) {
-            throw new ApiException(ErrorCode.AMOUNT_MISMATCH, "Số tiền thanh toán phải lớn hơn hoặc bằng học phí.");
-        }
-        // Kiểm tra user tồn tại
-        UserResponse user = getUser(request.getUserId());
-        if (user == null) {
-            throw new ApiException(ErrorCode.USER_NOT_FOUND);
-        }
-        if (user.getEmail() == null || user.getEmail().isEmpty()) {
-            throw new ApiException(ErrorCode.USER_EMAIL_NOT_FOUND);
-        }
-        // Kiểm tra số dư user phải >= amount
-        if (user.getBalance() == null || user.getBalance().compareTo(paymentAmount) < 0) {
-            throw new ApiException(ErrorCode.INSUFFICIENT_BALANCE, "Số dư tài khoản không đủ để thanh toán.");
-        }
+        try {
+            // Kiểm tra học phí tồn tại
+            TuitionDTO tuition = getTuition(request.getTuitionCode());
+            if (tuition == null) {
+                throw new ApiException(ErrorCode.TUITION_NOT_FOUND);
+            }
+            
+            // Kiểm tra học phí đã thanh toán chưa 
+            if (tuition.getStatus() != null && tuition.getStatus().equals("Đã thanh toán")) {
+                throw new ApiException(ErrorCode.PAYMENT_ALREADY_COMPLETED, 
+                    "Học phí này đã được thanh toán. Không thể tạo giao dịch mới.");
+            }
+            
+            // Kiểm tra số tiền phải >= học phí
+            BigDecimal paymentAmount = BigDecimal.valueOf(request.getAmount());
+            if (paymentAmount.compareTo(tuition.getAmount()) < 0) {
+                throw new ApiException(ErrorCode.AMOUNT_MISMATCH, 
+                    "Số tiền thanh toán phải lớn hơn hoặc bằng học phí.");
+            }
+            
+            // Kiểm tra user tồn tại
+            UserResponse user = getUser(request.getUserId());
+            if (user == null) {
+                throw new ApiException(ErrorCode.USER_NOT_FOUND);
+            }
+            
+            if (user.getEmail() == null || user.getEmail().isEmpty()) {
+                throw new ApiException(ErrorCode.USER_EMAIL_NOT_FOUND);
+            }
+            
+            // Kiểm tra số dư user phải >= amount
+            if (user.getBalance() == null || user.getBalance().compareTo(paymentAmount) < 0) {
+                throw new ApiException(ErrorCode.INSUFFICIENT_BALANCE, 
+                    "Số dư tài khoản không đủ để thanh toán.");
+            }
 
-        // Sinh OTP
-        String otp = String.valueOf(100000 + new Random().nextInt(900000));
-        Payment payment = new Payment();
-        payment.setUserId(request.getUserId());
-        payment.setTuitionCode(request.getTuitionCode());
-        payment.setAmount(request.getAmount());
-        payment.setStatus(PaymentStatus.PENDING_OTP);
-        payment.setOtpCode(otp);
-        payment.setOtpExpiredAt(LocalDateTime.now().plusMinutes(5));
-        payment = paymentRepository.save(payment);
+            // Sinh OTP
+            String otp = String.valueOf(100000 + new Random().nextInt(900000));
+            
+            // Lưu thông tin payment
+            Payment payment = new Payment();
+            payment.setUserId(request.getUserId());
+            payment.setTuitionCode(request.getTuitionCode());
+            payment.setAmount(request.getAmount());
+            payment.setStatus(PaymentStatus.PENDING_OTP);
+            payment.setOtpExpiredAt(LocalDateTime.now().plusMinutes(OTP_EXPIRE_MINUTES));
+            // Không lưu OTP vào database nữa
+            payment = paymentRepository.save(payment);
+            
+            // Lưu OTP vào Redis với thời gian hết hạn
+            String redisKey = OTP_PREFIX + payment.getId();
+            redisTemplate.opsForValue().set(redisKey, otp);
+            redisTemplate.expire(redisKey, OTP_EXPIRE_MINUTES, TimeUnit.MINUTES);
 
-        // Gửi OTP qua NotificationService
-        OtpEmailRequest otpRequest = new OtpEmailRequest();
-        otpRequest.setToEmail(user.getEmail());
-        otpRequest.setOtpCode(otp);
-        otpRequest.setExpireMinutes(5);
-        restTemplate.postForObject("http://localhost:8080/notification-service/api/notification/send-otp", otpRequest, Void.class);
+            // Gửi OTP qua NotificationService
+            OtpEmailRequest otpRequest = new OtpEmailRequest();
+            otpRequest.setToEmail(user.getEmail());
+            otpRequest.setOtpCode(otp);
+            otpRequest.setExpireMinutes(OTP_EXPIRE_MINUTES);
+            restTemplate.postForObject("http://localhost:8080/notification-service/api/notification/send-otp", 
+                otpRequest, Void.class);
 
-        return payment;
+            // Lưu lịch sử giao dịch khi tạo phiên thanh toán - PENDING
+            saveTransactionHistory(payment, "PENDING", "Payment session created, waiting for OTP verification");
+
+            return payment;
+            
+        } catch (ApiException e) {
+            // Với lỗi nghiệp vụ, lưu lịch sử và ném lại exception
+            Payment failedPayment = new Payment();
+            failedPayment.setUserId(request.getUserId());
+            failedPayment.setTuitionCode(request.getTuitionCode());
+            failedPayment.setAmount(request.getAmount());
+            failedPayment.setStatus(PaymentStatus.FAILED);
+            failedPayment = paymentRepository.save(failedPayment);
+            
+            saveTransactionHistory(failedPayment, "FAILED", "Payment failed: " + e.getMessage());
+            throw e;
+            
+        } catch (Exception e) {
+            // Với lỗi hệ thống, lưu lịch sử và ném ApiException
+            Payment failedPayment = new Payment();
+            failedPayment.setUserId(request.getUserId());
+            failedPayment.setTuitionCode(request.getTuitionCode());
+            failedPayment.setAmount(request.getAmount());
+            failedPayment.setStatus(PaymentStatus.FAILED);
+            failedPayment = paymentRepository.save(failedPayment);
+            
+            saveTransactionHistory(failedPayment, "FAILED", "System error: " + e.getMessage());
+            throw new ApiException(ErrorCode.INTERNAL_ERROR, "Payment creation failed: " + e.getMessage());
+        }
     }
 
     @Override
     public boolean verifyOtp(Long paymentId, String otpCode) {
         Payment payment = paymentRepository.findById(paymentId)
             .orElseThrow(() -> new ApiException(ErrorCode.PAYMENT_NOT_FOUND));
-
-        if (!payment.getOtpCode().equals(otpCode)) {
-            throw new ApiException(ErrorCode.OTP_INVALID);
-        }
-        if (payment.getOtpExpiredAt().isBefore(LocalDateTime.now())) {
-            throw new ApiException(ErrorCode.OTP_EXPIRED);
-        }
+            
         if (payment.getStatus() == PaymentStatus.SUCCESS) {
             throw new ApiException(ErrorCode.PAYMENT_ALREADY_SUCCESS);
         }
-
-        // Trừ số dư user qua UserService
-        DeductBalanceRequest deductRequest = new DeductBalanceRequest();
-        deductRequest.setAmount(BigDecimal.valueOf(payment.getAmount()));
-        try {
-            restTemplate.postForObject("http://localhost:8080/user-service/api/users/" + payment.getUserId() + "/deduct-balance", deductRequest, Void.class);
-        } catch (Exception e) {
-            throw new ApiException(ErrorCode.INSUFFICIENT_BALANCE);
+        
+        // Kiểm tra OTP từ Redis
+        String redisKey = OTP_PREFIX + paymentId;
+        String storedOtp = redisTemplate.opsForValue().get(redisKey);
+        
+        // Trường hợp OTP không tồn tại hoặc đã hết hạn
+        if (storedOtp == null) {
+            payment.setStatus(PaymentStatus.FAILED);
+            paymentRepository.save(payment);
+            saveTransactionHistory(payment, "FAILED", "OTP expired or not found");
+            throw new ApiException(ErrorCode.OTP_EXPIRED);
         }
+        
+        // Trường hợp OTP không khớp
+        if (!storedOtp.equals(otpCode)) {
+            saveTransactionHistory(payment, "FAILED", "Invalid OTP provided");
+            throw new ApiException(ErrorCode.OTP_INVALID);
+        }
+        
+        try {
+            // Trừ số dư user qua UserService
+            DeductBalanceRequest deductRequest = new DeductBalanceRequest();
+            deductRequest.setAmount(BigDecimal.valueOf(payment.getAmount()));
+            restTemplate.postForObject("http://localhost:8080/user-service/api/users/" + 
+                payment.getUserId() + "/deduct-balance", deductRequest, Void.class);
+                
+            // Cập nhật trạng thái payment thành công
+            payment.setStatus(PaymentStatus.SUCCESS);
+            paymentRepository.save(payment);
+            
+            // Xóa OTP từ Redis sau khi xác thực thành công
+            redisTemplate.delete(redisKey);
 
-        payment.setStatus(PaymentStatus.SUCCESS);
-        paymentRepository.save(payment);
+            // Lưu lịch sử giao dịch thành công
+            saveTransactionHistory(payment, "SUCCESS", "Payment successful");
 
-        // Lưu lịch sử giao dịch
-        saveTransactionHistory(payment, "SUCCESS", "Payment successful");
+            // Gửi email xác nhận thành công qua NotificationService
+            PaymentSuccessEmailRequest successRequest = new PaymentSuccessEmailRequest();
+            UserResponse user = getUser(payment.getUserId());
+            successRequest.setToEmail(user.getEmail());
+            successRequest.setUserName(user.getFullName());
+            successRequest.setTuitionCode(payment.getTuitionCode());
+            successRequest.setAmount(payment.getAmount());
+            successRequest.setSemester(getSemester(payment.getTuitionCode()));
+            restTemplate.postForObject("http://localhost:8080/notification-service/api/notification/payment-success", 
+                successRequest, Void.class);
 
-        // Gửi email xác nhận thành công qua NotificationService
-        PaymentSuccessEmailRequest successRequest = new PaymentSuccessEmailRequest();
-        UserResponse user = getUser(payment.getUserId());
-        successRequest.setToEmail(user.getEmail());
-        successRequest.setUserName(user.getFullName());
-        successRequest.setTuitionCode(payment.getTuitionCode());
-        successRequest.setAmount(payment.getAmount());
-        successRequest.setSemester(getSemester(payment.getTuitionCode()));
-        restTemplate.postForObject("http://localhost:8080/notification-service/api/notification/payment-success", successRequest, Void.class);
+            // Cập nhật trạng thái tuition sang "Đã thanh toán"
+            updateTuitionStatus(payment.getTuitionCode(), "Đã thanh toán");
 
-        // Cập nhật trạng thái tuition sang "Đã thanh toán"
-        updateTuitionStatus(payment.getTuitionCode(), "Đã thanh toán");
-
-        return true;
+            return true;
+            
+        } catch (Exception e) {
+            // Xử lý lỗi trong quá trình thanh toán
+            payment.setStatus(PaymentStatus.FAILED);
+            paymentRepository.save(payment);
+            
+            // Xóa OTP từ Redis khi thất bại
+            redisTemplate.delete(redisKey);
+            
+            // Lưu lịch sử thất bại
+            saveTransactionHistory(payment, "FAILED", "Payment verification failed: " + e.getMessage());
+            
+            if (e instanceof ApiException) {
+                throw e;
+            }
+            throw new ApiException(ErrorCode.PAYMENT_PROCESSING_ERROR, 
+                "Payment verification failed: " + e.getMessage());
+        }
     }
 
     // Thêm phương thức mới
@@ -154,11 +244,14 @@ public class PaymentServiceImp implements PaymentService {
             dto.setStatus(h.getStatus());
             dto.setMessage(h.getMessage());
             dto.setCreatedAt(h.getCreatedAt());
-            // Lấy thông tin học phí
-            TuitionDTO tuition = getTuition(h.getTuitionCode());
-            if (tuition != null) {
-                dto.setTuitionAmount(tuition.getAmount());
-                dto.setSemester(tuition.getSemester());
+            
+            // Lấy thông tin học phí (chỉ khi tuitionCode không null)
+            if (h.getTuitionCode() != null && !h.getTuitionCode().isEmpty()) {
+                TuitionDTO tuition = getTuition(h.getTuitionCode());
+                if (tuition != null) {
+                    dto.setTuitionAmount(tuition.getAmount());
+                    dto.setSemester(tuition.getSemester());
+                }
             }
             result.add(dto);
         }
@@ -198,7 +291,9 @@ public class PaymentServiceImp implements PaymentService {
 
     private void saveTransactionHistory(Payment payment, String status, String message) {
         TransactionHistory history = new TransactionHistory();
-        history.setPaymentId(payment.getId());
+        if (payment.getId() != null) {
+            history.setPaymentId(payment.getId());
+        }
         history.setUserId(payment.getUserId());
         history.setTuitionCode(payment.getTuitionCode());
         history.setAmount(payment.getAmount());

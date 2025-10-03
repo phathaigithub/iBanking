@@ -1,0 +1,21 @@
+meta {
+  name: Tra cứu học phí sinh viên
+  type: http
+  seq: 11
+}
+
+post {
+  url: http://localhost:8080/tuition-service/api/tuition/inquiry/request
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+      "studentCode": "52200002"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

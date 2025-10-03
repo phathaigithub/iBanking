@@ -2,6 +2,7 @@ package com.example.tuition_service.controller;
 
 import java.util.List;
 
+import com.example.tuition_service.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,11 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.tuition_service.dto.StatusUpdateDTO;
-import com.example.tuition_service.dto.StudentTuitionResponse;
-import com.example.tuition_service.dto.TuitionDTO;
-import com.example.tuition_service.dto.TuitionMajorRequest;
-import com.example.tuition_service.dto.TuitionMajorResponse;
 import com.example.tuition_service.model.Tuition;
 import com.example.tuition_service.service.TuitionService;
 
@@ -80,5 +76,19 @@ public class TuitionController {
     public ResponseEntity<List<TuitionDTO>> getAllTuition() {
         List<TuitionDTO> tuitionList = tuitionService.getAllTuition();
         return ResponseEntity.ok(tuitionList);
+    }
+
+    @PostMapping("/inquiry/request")
+    public ResponseEntity<ApiResponse> requestTuitionInquiry(@RequestBody TuitionInquiryRequest request) {
+        tuitionService.requestTuitionInquiry(request.getStudentCode());
+        ApiResponse response = new ApiResponse("OTP đã được gửi đến email của sinh viên. Vui lòng kiểm tra email.");
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/inquiry/verify")
+    public ResponseEntity<StudentTuitionResponse> verifyOtpAndGetTuitions(@RequestBody OtpVerificationRequest request) {
+        StudentTuitionResponse response = tuitionService.verifyOtpAndGetTuitions(
+            request.getStudentCode(), request.getOtpCode());
+        return ResponseEntity.ok(response);
     }
 }

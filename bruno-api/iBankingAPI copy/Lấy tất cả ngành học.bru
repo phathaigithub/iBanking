@@ -1,0 +1,15 @@
+meta {
+  name: Lấy tất cả ngành học
+  type: http
+  seq: 9
+}
+
+get {
+  url: http://localhost:8080/student-service/api/majors
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

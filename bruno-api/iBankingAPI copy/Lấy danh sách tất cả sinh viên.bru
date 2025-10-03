@@ -1,0 +1,15 @@
+meta {
+  name: Lấy danh sách tất cả sinh viên
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://localhost:8080/student-service/api/students
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

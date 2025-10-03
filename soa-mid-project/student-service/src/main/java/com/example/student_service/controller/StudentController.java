@@ -1,13 +1,12 @@
 package com.example.student_service.controller;
 
+import com.example.student_service.dto.CreateStudentRequest;
 import com.example.student_service.dto.StudentDTO;
 import com.example.student_service.model.Student;
 import com.example.student_service.service.StudentService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -37,5 +36,33 @@ public class StudentController {
     public ResponseEntity<List<StudentDTO>> getStudentsByMajorCode(@PathVariable("code") String code) {
         List<StudentDTO> students = studentService.findStudentsByMajorCode(code);
         return ResponseEntity.ok(students);
+    }
+
+    // Tạo sinh viên mới 
+    @PostMapping
+    public ResponseEntity<StudentDTO> createStudent(@RequestBody CreateStudentRequest request) {
+        StudentDTO createdStudent = studentService.createStudent(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdStudent);
+    }
+
+    // Cập nhật sinh viên
+    @PutMapping("/{id}")
+    public ResponseEntity<StudentDTO> updateStudent(@PathVariable("id") int id, @RequestBody CreateStudentRequest request) {
+        StudentDTO updatedStudent = studentService.updateStudent(id, request);
+        return ResponseEntity.ok(updatedStudent);
+    }
+
+    // Xóa sinh viên
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteStudent(@PathVariable("id") int id) {
+        studentService.deleteStudent(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Lấy sinh viên theo student code
+    @GetMapping("/code/{studentCode}")
+    public ResponseEntity<StudentDTO> getStudentByCode(@PathVariable("studentCode") String studentCode) {
+        StudentDTO student = studentService.getStudentByCode(studentCode);
+        return ResponseEntity.ok(student);
     }
 }
