@@ -4,41 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6e3e51be-fba3-41b3-a410-88e79995d7ec" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../bruno-api/iBankingAPI copy/Create Tuition for student by major.bru" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common-library/src/main/java/com/example/common_library/exception/ErrorCode.java" beforeDir="false" afterPath="$PROJECT_DIR$/common-library/src/main/java/com/example/common_library/exception/ErrorCode.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/eureka-server/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/eureka-server/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notification-service/src/main/java/com/example/notification_service/controller/NotificationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/notification-service/src/main/java/com/example/notification_service/controller/NotificationController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notification-service/src/main/java/com/example/notification_service/service/NotificationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/notification-service/src/main/java/com/example/notification_service/service/NotificationService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notification-service/src/main/java/com/example/notification_service/service/impl/NotificationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/notification-service/src/main/java/com/example/notification_service/service/impl/NotificationServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/com/example/payment_service/controller/PaymentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/java/com/example/payment_service/controller/PaymentController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/com/example/payment_service/model/Payment.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/java/com/example/payment_service/model/Payment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/com/example/payment_service/service/impl/PaymentServiceImp.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/java/com/example/payment_service/service/impl/PaymentServiceImp.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/student-service/src/main/java/com/example/student_service/controller/StudentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/student-service/src/main/java/com/example/student_service/controller/StudentController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/student-service/src/main/java/com/example/student_service/dto/StudentDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/student-service/src/main/java/com/example/student_service/dto/StudentDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/student-service/src/main/java/com/example/student_service/repository/StudentRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/student-service/src/main/java/com/example/student_service/repository/StudentRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/student-service/src/main/java/com/example/student_service/service/StudentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/student-service/src/main/java/com/example/student_service/service/StudentService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/student-service/src/main/java/com/example/student_service/service/imp/StudentServiceImp.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/student-service/src/main/resources/data.sql" beforeDir="false" afterPath="$PROJECT_DIR$/student-service/src/main/resources/data.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tuition-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/tuition-service/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/client/StudentServiceClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/client/StudentServiceClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/controller/TuitionController.java" beforeDir="false" afterPath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/controller/TuitionController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/dto/StudentDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/dto/StudentDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/dto/StudentTuitionResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/dto/StudentTuitionResponse.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/dto/TuitionDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/dto/TuitionDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/dto/TuitionMajorRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/dto/TuitionMajorRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/service/TuitionService.java" beforeDir="false" afterPath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/service/TuitionService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/service/impl/TuitionServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/tuition-service/src/main/java/com/example/tuition_service/service/impl/TuitionServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tuition-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/tuition-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tuition-service/src/main/resources/data.sql" beforeDir="false" afterPath="$PROJECT_DIR$/tuition-service/src/main/resources/data.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/example/user_service/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/example/user_service/repository/UserRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/example/user_service/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/example/user_service/service/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/example/user_service/service/impl/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/example/user_service/service/impl/UserServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/resources/data.sql" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/resources/data.sql" afterDir="false" />
-    </list>
+    <list default="true" id="6e3e51be-fba3-41b3-a410-88e79995d7ec" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -78,43 +44,43 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.ApiGatewayApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Application.EurekaServerApplication.executor&quot;: &quot;Run&quot;,
-    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
-    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
-    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
-    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;Spring Boot.ApiGatewayApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.EurekaServerApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.NotificationServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.PaymentServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.StudentServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.TuitionServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Spring Boot.UserServiceApplication.executor&quot;: &quot;Run&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Hai&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/TDTU/HK7/SOA/iBanking/soa-mid-project&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon&quot;: &quot;&quot;,
-    &quot;org.rust.first.attach.projects&quot;: &quot;true&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;run.configurations.included.in.services&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.projectsettings.compiler.annotationProcessors&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.ApiGatewayApplication.executor": "Run",
+    "Application.EurekaServerApplication.executor": "Run",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "Spring Boot.ApiGatewayApplication.executor": "Run",
+    "Spring Boot.EurekaServerApplication.executor": "Run",
+    "Spring Boot.NotificationServiceApplication.executor": "Run",
+    "Spring Boot.PaymentServiceApplication.executor": "Run",
+    "Spring Boot.StudentServiceApplication.executor": "Run",
+    "Spring Boot.TuitionServiceApplication.executor": "Run",
+    "Spring Boot.UserServiceApplication.executor": "Run",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/TDTU/HK7/SOA/iBanking/soa-mid-project",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon": "",
+    "org.rust.first.attach.projects": "true",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.2",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "run.configurations.included.in.services": "true",
+    "settings.editor.selected.configurable": "reference.projectsettings.compiler.annotationProcessors",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\TDTU\HK7\SOA\soa-mid-project\student-service\src\main\java\com\example\student_service\controller" />
@@ -252,7 +218,7 @@
       <workItem from="1759243455736" duration="255000" />
       <workItem from="1759249632192" duration="999000" />
       <workItem from="1759399679997" duration="4909000" />
-      <workItem from="1759481092122" duration="10806000" />
+      <workItem from="1759481092122" duration="11584000" />
     </task>
     <servers />
   </component>
