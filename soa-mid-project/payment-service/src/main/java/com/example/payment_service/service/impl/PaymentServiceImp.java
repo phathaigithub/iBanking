@@ -260,14 +260,14 @@ public class PaymentServiceImp implements PaymentService {
 
     @Override
     public List<TuitionDTO> getAllTuition() {
-        String url = "http://localhost:8080/tuition-service/api/tuition/all";
+        String url = "http://localhost:8086/tuition-service/api/tuition/all";
         TuitionDTO[] tuitions = restTemplate.getForObject(url, TuitionDTO[].class);
         return tuitions != null ? Arrays.asList(tuitions) : new ArrayList<>();
     }
 
     // Helper methods
     private TuitionDTO getTuition(String tuitionCode) {
-        String url = "http://localhost:8080/tuition-service/api/tuition/" + tuitionCode;
+        String url = "http://localhost:8086/tuition-service/api/tuition/" + tuitionCode;
         try {
             return restTemplate.getForObject(url, TuitionDTO.class);
         } catch (Exception e) {
@@ -276,7 +276,7 @@ public class PaymentServiceImp implements PaymentService {
     }
 
     private UserResponse getUser(Long userId) {
-        String url = "http://localhost:8080/user-service/api/users/" + userId;
+        String url = "http://localhost:8086/user-service/api/users/" + userId;
         try {
             return restTemplate.getForObject(url, UserResponse.class);
         } catch (Exception e) {
@@ -304,7 +304,7 @@ public class PaymentServiceImp implements PaymentService {
     }
 
     private void updateTuitionStatus(String tuitionCode, String newStatus) {
-        String url = "http://localhost:8080/tuition-service/api/tuition/" + tuitionCode + "/status";
+        String url = "http://localhost:8086/tuition-service/api/tuition/" + tuitionCode + "/status";
         StatusUpdateDTO statusUpdateDTO = new StatusUpdateDTO();
         statusUpdateDTO.setStatus(newStatus);
         try {
