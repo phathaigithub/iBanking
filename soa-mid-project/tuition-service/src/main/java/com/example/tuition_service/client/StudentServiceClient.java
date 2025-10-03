@@ -50,7 +50,7 @@ public class StudentServiceClient {
     }
 
     public StudentDTO getStudentByCode(String studentCode) {
-        String url = "http://localhost:8080/student-service/api/students/code/" + studentCode;
+        String url = "http://localhost:8086/student-service/api/students/code/" + studentCode;
         try {
             return restTemplate.getForObject(url, StudentDTO.class);
         } catch (HttpClientErrorException e) {

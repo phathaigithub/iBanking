@@ -111,7 +111,7 @@ public class PaymentServiceImp implements PaymentService {
             otpRequest.setToEmail(user.getEmail());
             otpRequest.setOtpCode(otp);
             otpRequest.setExpireMinutes(OTP_EXPIRE_MINUTES);
-            restTemplate.postForObject("http://localhost:8080/notification-service/api/notification/send-otp", 
+            restTemplate.postForObject("http://localhost:8086/notification-service/api/notification/send-otp", 
                 otpRequest, Void.class);
 
             // Lưu lịch sử giao dịch khi tạo phiên thanh toán - PENDING
@@ -176,7 +176,7 @@ public class PaymentServiceImp implements PaymentService {
             // Trừ số dư user qua UserService
             DeductBalanceRequest deductRequest = new DeductBalanceRequest();
             deductRequest.setAmount(BigDecimal.valueOf(payment.getAmount()));
-            restTemplate.postForObject("http://localhost:8080/user-service/api/users/" + 
+            restTemplate.postForObject("http://localhost:8086/user-service/api/users/" + 
                 payment.getUserId() + "/deduct-balance", deductRequest, Void.class);
                 
             // Cập nhật trạng thái payment thành công
@@ -197,7 +197,7 @@ public class PaymentServiceImp implements PaymentService {
             successRequest.setTuitionCode(payment.getTuitionCode());
             successRequest.setAmount(payment.getAmount());
             successRequest.setSemester(getSemester(payment.getTuitionCode()));
-            restTemplate.postForObject("http://localhost:8080/notification-service/api/notification/payment-success", 
+            restTemplate.postForObject("http://localhost:8086/notification-service/api/notification/payment-success", 
                 successRequest, Void.class);
 
             // Cập nhật trạng thái tuition sang "Đã thanh toán"

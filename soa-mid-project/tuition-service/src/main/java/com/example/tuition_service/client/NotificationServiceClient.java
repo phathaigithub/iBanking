@@ -14,7 +14,7 @@ public class NotificationServiceClient {
     private RestTemplate restTemplate;
 
     public void sendInquiryOtp(String toEmail, String otpCode, String studentName) {
-        String url = "http://localhost:8080/notification-service/api/notification/send-inquiry-otp";
+        String url = "http://localhost:8086/notification-service/api/notification/send-inquiry-otp";
         
         OtpEmailRequest request = new OtpEmailRequest();
         request.setToEmail(toEmail);
