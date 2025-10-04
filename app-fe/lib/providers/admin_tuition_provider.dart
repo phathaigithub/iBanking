@@ -77,7 +77,8 @@ class AdminTuitionState {
 
   // Filtered tuitions based on search query and semester selection
   List<TuitionResponse> get filteredTuitions {
-    List<TuitionResponse> filtered = tuitions;
+    // Create a mutable copy of the tuitions list
+    List<TuitionResponse> filtered = List<TuitionResponse>.from(tuitions);
 
     // Filter by semester if selected (for "Tất cả" mode)
     if (viewMode == TuitionViewMode.all &&
