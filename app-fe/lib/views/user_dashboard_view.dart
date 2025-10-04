@@ -190,7 +190,7 @@ class _UserDashboardViewState extends ConsumerState<UserDashboardView> {
                   children: [
                     _buildTabButton(0, Icons.payment, 'Thanh toán'),
                     _buildTabButton(1, Icons.search, 'Tra cứu'),
-                    _buildTabButton(2, Icons.show_chart, 'Dòng tiền'),
+                    _buildTabButton(2, Icons.history, 'Lịch sử'),
                     _buildTabButton(3, Icons.person, 'Thông tin'),
                   ],
                 ),

@@ -36,15 +36,11 @@ class PaymentHistoryView extends ConsumerWidget {
                   color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
-                  Icons.show_chart,
-                  color: AppColors.primary,
-                  size: 24,
-                ),
+                child: Icon(Icons.history, color: AppColors.primary, size: 24),
               ),
               const SizedBox(width: 12),
               const Text(
-                'Biến động dòng tiền',
+                'Lịch sử hoạt động',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
             ],

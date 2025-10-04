@@ -85,6 +85,30 @@ class _TuitionLookupViewState extends ConsumerState<TuitionLookupView> {
             ],
           ),
 
+          const SizedBox(height: 16),
+
+          // Function Info
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.green[50],
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.green[200]!),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.info_outline, color: Colors.green[700], size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Nhập mã số sinh viên để tra cứu thông tin học phí. OTP sẽ được gửi đến email sinh viên.',
+                    style: TextStyle(fontSize: 14, color: Colors.green[700]),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
           const SizedBox(height: 24),
 
           // Search Card
@@ -102,7 +126,7 @@ class _TuitionLookupViewState extends ConsumerState<TuitionLookupView> {
                   'Tra cứu học phí sinh viên',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 TextField(
                   controller: _studentCodeController,
                   decoration: InputDecoration(
@@ -146,7 +170,7 @@ class _TuitionLookupViewState extends ConsumerState<TuitionLookupView> {
                     ),
                   ),
                 ],
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
