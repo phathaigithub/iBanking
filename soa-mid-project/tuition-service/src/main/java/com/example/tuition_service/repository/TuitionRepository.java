@@ -8,4 +8,5 @@ import com.example.tuition_service.model.Tuition;
 
 public interface TuitionRepository extends JpaRepository<Tuition, String> {
     List<Tuition> findByStudentCode(String studentCode);
+    List<Tuition> findBySemester(String semester);
 }

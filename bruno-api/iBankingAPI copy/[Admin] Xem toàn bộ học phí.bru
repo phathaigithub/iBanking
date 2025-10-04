@@ -1,0 +1,15 @@
+meta {
+  name: [Admin] Xem toàn bộ học phí
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{PrefixURL}}/tuition-service/api/tuition
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}
