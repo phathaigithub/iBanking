@@ -5,13 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6e3e51be-fba3-41b3-a410-88e79995d7ec" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../app-fe/lib/services/api/payment_api_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../app-fe/lib/services/api/payment_api_service.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../app-fe/lib/services/api/tuition_api_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../app-fe/lib/services/api/tuition_api_service.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../app-fe/lib/views/account_info_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../app-fe/lib/views/account_info_view.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../app-fe/lib/views/payment_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../app-fe/lib/views/payment_view.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../bruno-api/iBankingAPI copy/Tìm kiếm học phí theo kỳ hoặc theo mã ngành.bru" beforeDir="false" afterPath="$PROJECT_DIR$/../bruno-api/iBankingAPI copy/Tìm kiếm học phí theo kỳ hoặc theo mã ngành.bru" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../bruno-api/iBankingAPI copy/Xác thực otp và lấy học phí.bru" beforeDir="false" afterPath="$PROJECT_DIR$/../bruno-api/iBankingAPI copy/Xác thực otp và lấy học phí.bru" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../bruno-api/iBankingAPI copy/[Admin] Xem toàn bộ học phí.bru" beforeDir="false" afterPath="$PROJECT_DIR$/../bruno-api/iBankingAPI copy/[Admin] Xem toàn bộ học phí.bru" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app-fe/lib/views/payment_view.dart.bak" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app-fe/lib/views/tuition_lookup_view.dart.bak" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app-fe/lib/views/tuition_management_view.dart.bak" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app-fe/lib/widgets/student_card.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app-fe/lib/widgets/student_grid.dart" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

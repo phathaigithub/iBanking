@@ -5,6 +5,7 @@ import '../../models/student_tuition.dart';
 import '../../models/api/tuition_response.dart';
 import '../../models/api/create_tuition_period_request.dart';
 import '../../models/api/create_tuition_period_response.dart';
+import '../../models/api/tuition_inquiry_response.dart';
 import 'api_client.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -266,6 +267,27 @@ class TuitionApiService {
       url: '${ApiRoutes.tuitionServiceEndpoint}/tuition/$tuitionCode',
     );
     return TuitionResponse.fromJson(response);
+  }
+
+  // Tuition Inquiry - Request OTP
+  Future<String> requestTuitionInquiryOtp(String studentCode) async {
+    final response = await _apiClient.post(
+      url: '${ApiRoutes.tuitionServiceEndpoint}/tuition/inquiry/request',
+      body: {'studentCode': studentCode},
+    );
+    return response['message'] as String;
+  }
+
+  // Tuition Inquiry - Verify OTP
+  Future<TuitionInquiryResponse> verifyTuitionInquiryOtp({
+    required String studentCode,
+    required String otpCode,
+  }) async {
+    final response = await _apiClient.post(
+      url: '${ApiRoutes.tuitionServiceEndpoint}/tuition/inquiry/verify',
+      body: {'studentCode': studentCode, 'otpCode': otpCode},
+    );
+    return TuitionInquiryResponse.fromJson(response);
   }
 
   void dispose() {
