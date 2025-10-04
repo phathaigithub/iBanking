@@ -1,5 +1,8 @@
 import '../../routes/payment_routes.dart';
 import '../../config/api_routes.dart';
+import '../../models/api/payment_request.dart' as payment_request;
+import '../../models/api/payment_response.dart' as payment_model;
+import '../../models/api/otp_verification_request.dart';
 import 'api_client.dart';
 
 class PaymentApiService {
@@ -97,6 +100,29 @@ class PaymentApiService {
       url: PaymentRoutes.resendOTP,
       body: {'paymentId': paymentId},
     );
+  }
+
+  // New Payment Methods for User Dashboard
+  Future<payment_model.PaymentResponse> createPayment(
+    payment_request.PaymentRequest request,
+  ) async {
+    final response = await _apiClient.post(
+      url: '${ApiRoutes.paymentServiceEndpoint}/payments',
+      body: request.toJson(),
+    );
+    return payment_model.PaymentResponse.fromJson(response);
+  }
+
+  Future<payment_model.PaymentResponse> verifyOtp({
+    required int paymentId,
+    required String otpCode,
+  }) async {
+    final request = OtpVerificationRequest(otpCode: otpCode);
+    final response = await _apiClient.post(
+      url: '${ApiRoutes.paymentServiceEndpoint}/payments/$paymentId/verify-otp',
+      body: request.toJson(),
+    );
+    return payment_model.PaymentResponse.fromJson(response);
   }
 
   void dispose() {

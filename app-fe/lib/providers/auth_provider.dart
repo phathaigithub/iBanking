@@ -126,6 +126,21 @@ class AuthNotifier extends StateNotifier<AuthState> {
   void clearError() {
     state = state.copyWith(clearError: true);
   }
+
+  void updateUserBalance(double newBalance) {
+    if (state.user != null) {
+      final updatedUser = UserResponse(
+        id: state.user!.id,
+        username: state.user!.username,
+        email: state.user!.email,
+        fullName: state.user!.fullName,
+        phone: state.user!.phone,
+        balance: newBalance,
+        role: state.user!.role,
+      );
+      state = state.copyWith(user: updatedUser);
+    }
+  }
 }
 
 // Auth Provider

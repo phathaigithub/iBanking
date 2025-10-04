@@ -80,81 +80,81 @@ class _AccountInfoViewState extends ConsumerState<AccountInfoView> {
             ),
           ),
 
-          const SizedBox(height: 20),
+          // const SizedBox(height: 20),
 
-          // Deposit Card
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey[200]!),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.account_balance_wallet,
-                      color: AppColors.primary,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Nạp tiền vào tài khoản',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _amountController,
-                  decoration: const InputDecoration(
-                    labelText: 'Số tiền nạp',
-                    hintText: 'Nhập số tiền muốn nạp',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.attach_money),
-                    suffixText: 'VNĐ',
-                  ),
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      if (_amountController.text.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Vui lòng nhập số tiền cần nạp'),
-                            backgroundColor: Colors.orange,
-                          ),
-                        );
-                        return;
-                      }
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Chức năng nạp tiền đang được phát triển. Vui lòng chờ cập nhật API.',
-                          ),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.add_card),
-                    label: const Text('Nạp tiền'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      backgroundColor: Colors.green,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          // // Deposit Card
+          // Container(
+          //   padding: const EdgeInsets.all(16),
+          //   decoration: BoxDecoration(
+          //     color: Colors.white,
+          //     borderRadius: BorderRadius.circular(12),
+          //     border: Border.all(color: Colors.grey[200]!),
+          //   ),
+          //   child: Column(
+          //     crossAxisAlignment: CrossAxisAlignment.start,
+          //     children: [
+          //       Row(
+          //         children: [
+          //           Icon(
+          //             Icons.account_balance_wallet,
+          //             color: AppColors.primary,
+          //             size: 20,
+          //           ),
+          //           const SizedBox(width: 8),
+          //           const Text(
+          //             'Nạp tiền vào tài khoản',
+          //             style: TextStyle(
+          //               fontSize: 16,
+          //               fontWeight: FontWeight.w600,
+          //             ),
+          //           ),
+          //         ],
+          //       ),
+          //       const SizedBox(height: 16),
+          //       TextField(
+          //         controller: _amountController,
+          //         decoration: const InputDecoration(
+          //           labelText: 'Số tiền nạp',
+          //           hintText: 'Nhập số tiền muốn nạp',
+          //           border: OutlineInputBorder(),
+          //           prefixIcon: Icon(Icons.attach_money),
+          //           suffixText: 'VNĐ',
+          //         ),
+          //         keyboardType: TextInputType.number,
+          //       ),
+          //       const SizedBox(height: 16),
+          //       SizedBox(
+          //         width: double.infinity,
+          //         child: ElevatedButton.icon(
+          //           onPressed: () {
+          //             if (_amountController.text.isEmpty) {
+          //               ScaffoldMessenger.of(context).showSnackBar(
+          //                 const SnackBar(
+          //                   content: Text('Vui lòng nhập số tiền cần nạp'),
+          //                   backgroundColor: Colors.orange,
+          //                 ),
+          //               );
+          //               return;
+          //             }
+          //             ScaffoldMessenger.of(context).showSnackBar(
+          //               const SnackBar(
+          //                 content: Text(
+          //                   'Chức năng nạp tiền đang được phát triển. Vui lòng chờ cập nhật API.',
+          //                 ),
+          //               ),
+          //             );
+          //           },
+          //           icon: const Icon(Icons.add_card),
+          //           label: const Text('Nạp tiền'),
+          //           style: ElevatedButton.styleFrom(
+          //             padding: const EdgeInsets.symmetric(vertical: 12),
+          //             backgroundColor: Colors.green,
+          //           ),
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
         ],
       ),
     );

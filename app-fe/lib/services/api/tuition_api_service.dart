@@ -260,6 +260,14 @@ class TuitionApiService {
     return CreateTuitionPeriodResponse.fromJson(response);
   }
 
+  // Get Tuition by Code
+  Future<TuitionResponse> getTuitionByCode(String tuitionCode) async {
+    final response = await _apiClient.get(
+      url: '${ApiRoutes.tuitionServiceEndpoint}/tuition/$tuitionCode',
+    );
+    return TuitionResponse.fromJson(response);
+  }
+
   void dispose() {
     _apiClient.dispose();
   }
