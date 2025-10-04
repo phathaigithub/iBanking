@@ -36,11 +36,15 @@ class PaymentHistoryView extends ConsumerWidget {
                   color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(Icons.history, color: AppColors.primary, size: 24),
+                child: Icon(
+                  Icons.show_chart,
+                  color: AppColors.primary,
+                  size: 24,
+                ),
               ),
               const SizedBox(width: 12),
               const Text(
-                'Lịch sử chuyển khoản',
+                'Biến động dòng tiền',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
             ],
@@ -59,19 +63,6 @@ class PaymentHistoryView extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Icon(Icons.history, color: AppColors.primary, size: 20),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Lịch sử thanh toán',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
                 const SizedBox(height: 16),
                 _buildPaymentHistoryItem(
                   type: 'Thanh toán học phí',

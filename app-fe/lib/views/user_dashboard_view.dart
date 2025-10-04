@@ -29,7 +29,7 @@ class _UserDashboardViewState extends ConsumerState<UserDashboardView> {
         title: const Text('TUI iBanking'),
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.onPrimary,
-        centerTitle: true,
+        centerTitle: false,
         elevation: 0,
         actions: [
           IconButton(
@@ -50,7 +50,7 @@ class _UserDashboardViewState extends ConsumerState<UserDashboardView> {
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
-                  margin: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
@@ -136,9 +136,41 @@ class _UserDashboardViewState extends ConsumerState<UserDashboardView> {
                   ),
                 ),
 
+                // Content area
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: IndexedStack(
+                          index: _currentIndex,
+                          children: const [
+                            PaymentView(),
+                            TuitionLookupView(),
+                            PaymentHistoryView(),
+                            AccountInfoView(),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
                 // Tab navigation
                 Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  margin: const EdgeInsets.fromLTRB(8, 8, 8, 0),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
@@ -154,39 +186,9 @@ class _UserDashboardViewState extends ConsumerState<UserDashboardView> {
                     children: [
                       _buildTabButton(0, Icons.payment, 'Thanh toán'),
                       _buildTabButton(1, Icons.search, 'Tra cứu'),
-                      _buildTabButton(2, Icons.history, 'Lịch sử'),
+                      _buildTabButton(2, Icons.show_chart, 'Dòng tiền'),
                       _buildTabButton(3, Icons.person, 'Thông tin'),
                     ],
-                  ),
-                ),
-
-                // Content area
-                Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: IndexedStack(
-                        index: _currentIndex,
-                        children: const [
-                          PaymentView(),
-                          TuitionLookupView(),
-                          PaymentHistoryView(),
-                          AccountInfoView(),
-                        ],
-                      ),
-                    ),
                   ),
                 ),
               ],
