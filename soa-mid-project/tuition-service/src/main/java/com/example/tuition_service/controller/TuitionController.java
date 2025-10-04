@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.tuition_service.model.Tuition;
@@ -72,7 +73,7 @@ public class TuitionController {
         return ResponseEntity.ok(updated);
     }
 
-    @GetMapping("/all")
+    @GetMapping("")
     public ResponseEntity<List<TuitionDTO>> getAllTuition() {
         List<TuitionDTO> tuitionList = tuitionService.getAllTuition();
         return ResponseEntity.ok(tuitionList);
@@ -90,5 +91,14 @@ public class TuitionController {
         StudentTuitionResponse response = tuitionService.verifyOtpAndGetTuitions(
             request.getStudentCode(), request.getOtpCode());
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<TuitionDTO>> searchTuitions(
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false) String semester) {
+        
+        List<TuitionDTO> result = tuitionService.searchTuitions(code, semester);
+        return ResponseEntity.ok(result);
     }
 }

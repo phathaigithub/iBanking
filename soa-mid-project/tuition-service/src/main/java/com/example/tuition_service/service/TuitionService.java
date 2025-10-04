@@ -32,4 +32,6 @@ public interface TuitionService {
 
     void requestTuitionInquiry(String studentCode);
     StudentTuitionResponse verifyOtpAndGetTuitions(String studentCode, String otpCode);
+
+    List<TuitionDTO> searchTuitions(String majorCode, String semester);
 }

@@ -17,6 +17,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -274,5 +275,63 @@ public class TuitionServiceImpl implements TuitionService {
         otpService.removeOtp(studentCode);
         
         return response;
+    }
+
+    @Override
+    public List<TuitionDTO> searchTuitions(String majorCode, String semester) {
+        if (majorCode != null && semester != null) {
+            // Tìm học phí theo cả mã ngành và học kỳ
+            List<StudentDTO> students = studentServiceClient.getStudentsByMajor(majorCode);
+            if (students.isEmpty()) {
+                return Collections.emptyList();
+            }
+            
+            // Lấy danh sách mã sinh viên từ ngành
+            List<String> studentCodes = students.stream()
+                    .map(StudentDTO::getStudentCode)
+                    .collect(Collectors.toList());
+                    
+            // Tìm học phí khớp với cả mã sinh viên và học kỳ
+            List<Tuition> tuitions = tuitionRepository.findAll()
+                    .stream()
+                    .filter(t -> t.getSemester().equals(semester) && 
+                            studentCodes.contains(t.getStudentCode()))
+                    .collect(Collectors.toList());
+                    
+            return tuitions.stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+                    
+        } else if (majorCode != null) {
+            // Chỉ tìm theo mã ngành
+            List<StudentDTO> students = studentServiceClient.getStudentsByMajor(majorCode);
+            if (students.isEmpty()) {
+                return Collections.emptyList();
+            }
+            
+            List<String> studentCodes = students.stream()
+                    .map(StudentDTO::getStudentCode)
+                    .collect(Collectors.toList());
+                    
+            List<Tuition> tuitions = tuitionRepository.findAll()
+                    .stream()
+                    .filter(t -> studentCodes.contains(t.getStudentCode()))
+                    .collect(Collectors.toList());
+                    
+            return tuitions.stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+                    
+        } else if (semester != null) {
+            // Chỉ tìm theo học kỳ
+            List<Tuition> tuitions = tuitionRepository.findBySemester(semester);
+            return tuitions.stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+                    
+        } else {
+            // Không có filter, trả về tất cả
+            return getAllTuition();
+        }
     }
 }
