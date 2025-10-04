@@ -1,340 +1,164 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:tui_ibank/models/user.dart';
-import '../viewmodels/payment_viewmodel.dart';
-import '../viewmodels/auth_viewmodel.dart';
-import '../views/payment_confirmation_view.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/auth_provider.dart';
 import '../utils/app_theme.dart';
 import '../utils/helpers.dart';
 
-class PaymentView extends StatefulWidget {
-  const PaymentView({super.key, this.onPaymentSuccess});
-
-  final VoidCallback? onPaymentSuccess;
+class PaymentView extends ConsumerWidget {
+  const PaymentView({super.key});
 
   @override
-  State<PaymentView> createState() => _PaymentViewState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(currentUserProvider);
 
-class _PaymentViewState extends State<PaymentView>
-    with AutomaticKeepAliveClientMixin {
-  final _formKey = GlobalKey<FormState>();
-  final _studentIdController = TextEditingController();
-  final _otpController = TextEditingController();
-  final _ballanceController = TextEditingController();
-  late User _currentUser;
+    if (user == null) {
+      return const Center(child: Text('Không có thông tin người dùng'));
+    }
 
-  @override
-  bool get wantKeepAlive => true;
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Thanh toán học phí', style: AppTextStyles.heading2),
+          const SizedBox(height: 24),
 
-  @override
-  void dispose() {
-    _studentIdController.dispose();
-    _otpController.dispose();
-    super.dispose();
-  }
+          // User Info Card
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Thông tin người nộp', style: AppTextStyles.heading3),
+                  const SizedBox(height: 16),
+                  _buildInfoRow('Họ và tên:', user.fullName),
+                  const SizedBox(height: 12),
+                  _buildInfoRow('Số điện thoại:', user.phone),
+                  const SizedBox(height: 12),
+                  _buildInfoRow('Email:', user.email),
+                  const SizedBox(height: 12),
+                  _buildInfoRow(
+                    'Số dư khả dụng:',
+                    CurrencyFormatter.format(user.balance),
+                    valueColor: AppColors.primary,
+                    valueFontWeight: FontWeight.bold,
+                  ),
+                ],
+              ),
+            ),
+          ),
 
-  @override
-  Widget build(BuildContext context) {
-    super.build(context); // Required for AutomaticKeepAliveClientMixin
-    return ChangeNotifierProvider(
-      create: (context) {
-        final paymentVM = PaymentViewModel();
-        // Setup callback to notify AuthViewModel when user data is updated
-        paymentVM.onUserUpdated = () {
-          final authVM = Provider.of<AuthViewModel>(context, listen: false);
-          authVM.notifyUserUpdated();
-        };
-        return paymentVM;
-      },
-      child: Consumer<PaymentViewModel>(
-        builder: (context, paymentVM, child) {
-          // Only show form in this view, OTP and success will be in separate view
-          return _buildPaymentForm(paymentVM);
-        },
+          const SizedBox(height: 24),
+
+          // Payment Form - Placeholder
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Thông tin sinh viên', style: AppTextStyles.heading3),
+                  const SizedBox(height: 16),
+                  const TextField(
+                    decoration: InputDecoration(
+                      labelText: 'Mã số sinh viên',
+                      hintText: 'Nhập mã số sinh viên (8 ký tự)',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Chức năng đang được phát triển. Vui lòng liên hệ với backend để tích hợp API.',
+                            ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.search),
+                      label: const Text('Tìm kiếm'),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.blue[50],
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.blue[200]!),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.info_outline,
+                              color: Colors.blue[700],
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Lưu ý:',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue[700],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '• Chức năng thanh toán đang được tích hợp với backend\n'
+                          '• Vui lòng chờ cập nhật API endpoints',
+                          style: TextStyle(
+                            color: Colors.blue[700],
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildPaymentForm(PaymentViewModel paymentVM) {
-    return SingleChildScrollView(
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Payer info section
-                Consumer<AuthViewModel>(
-                  builder: (context, authVM, child) {
-                    final currentUser = authVM.currentUser;
-                    if (currentUser == null) return const SizedBox();
-                    _currentUser = currentUser;
-
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Người nộp tiền', style: AppTextStyles.heading3),
-                        const SizedBox(height: 16),
-                        _buildReadOnlyField(
-                          label: 'Họ và tên',
-                          value: _currentUser.fullName,
-                        ),
-                        const SizedBox(height: 12),
-                        _buildReadOnlyField(
-                          label: 'Số điện thoại',
-                          value: _currentUser.phoneNumber,
-                        ),
-                        const SizedBox(height: 12),
-                        _buildReadOnlyField(
-                          label: 'Email',
-                          value: _currentUser.email,
-                        ),
-                        const SizedBox(height: 12),
-                        _buildReadOnlyField(
-                          controller: _ballanceController,
-                          label: 'Số dư khả dụng',
-                          value: CurrencyFormatter.format(
-                            _currentUser.availableBalance,
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-
-                const SizedBox(height: 24),
-
-                // Student info section
-                Text('Thông tin người nộp', style: AppTextStyles.heading3),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _studentIdController,
-                  decoration: const InputDecoration(
-                    labelText: 'Mã số sinh viên',
-                    hintText: 'Nhập 8 ký tự số',
-                  ),
-                  validator: Validators.validateStudentId,
-                  onChanged: (value) {
-                    // Clear previous search results when input changes
-                    paymentVM.clearSearchResults();
-                  },
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => _searchForMe(paymentVM),
-                        icon: const Icon(Icons.person),
-                        label: const Text('Đóng cho tôi'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: AppColors.onPrimary,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => _searchStudent(paymentVM),
-                        icon: const Icon(Icons.search),
-                        label: const Text('Tìm kiếm'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.secondary,
-                          foregroundColor: AppColors.onSecondary,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 24),
-
-                // Payment info section
-                if (paymentVM.paymentRequest != null &&
-                    paymentVM.errorMessage == null) ...[
-                  Text('Thông tin thanh toán', style: AppTextStyles.heading3),
-                  const SizedBox(height: 12),
-                  _buildReadOnlyField(
-                    label: 'Họ tên sinh viên',
-                    value: paymentVM.selectedStudent!.fullName,
-                  ),
-                  const SizedBox(height: 12),
-                  _buildReadOnlyField(
-                    label: 'Số tiền cần nộp',
-                    value: paymentVM.paymentRequest != null
-                        ? CurrencyFormatter.format(
-                            paymentVM.paymentRequest!.tuitionAmount,
-                          )
-                        : 'N/A',
-                  ),
-                  const SizedBox(height: 16),
-                  CheckboxListTile(
-                    title: const Text(
-                      'Tôi đồng ý với các điều khoản và điều kiện',
-                    ),
-                    value: paymentVM.agreedToTerms,
-                    onChanged: (value) =>
-                        paymentVM.setAgreedToTerms(value ?? false),
-                  ),
-                ],
-
-                const SizedBox(height: 24),
-
-                // Error display
-                if (paymentVM.errorMessage != null)
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.red[50],
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.red[200]!),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.error_outline,
-                          color: Colors.red[700],
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            paymentVM.errorMessage!,
-                            style: TextStyle(color: Colors.red[700]),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                // Submit button (only show when there's a valid payment request)
-                if (paymentVM.paymentRequest != null &&
-                    paymentVM.errorMessage == null)
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed:
-                          paymentVM.canProceedToOTP && !paymentVM.isLoading
-                          ? () => _navigateToConfirmation(paymentVM)
-                          : null,
-                      child: paymentVM.isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Text('Xác nhận giao dịch'),
-                    ),
-                  ),
-              ],
+  Widget _buildInfoRow(
+    String label,
+    String value, {
+    Color? valueColor,
+    FontWeight? valueFontWeight,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 140,
+          child: Text(
+            label,
+            style: AppTextStyles.body2.copyWith(color: Colors.grey[600]),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: AppTextStyles.body1.copyWith(
+              color: valueColor,
+              fontWeight: valueFontWeight,
             ),
           ),
         ),
-      ),
+      ],
     );
-  }
-
-  Future<void> _navigateToConfirmation(PaymentViewModel paymentVM) async {
-    // First initiate payment to get OTP
-    await paymentVM.initiatePayment();
-
-    if (paymentVM.currentStep == PaymentStep.otp && mounted) {
-      // Navigate to confirmation view
-      final result = await Navigator.push<bool>(
-        context,
-        MaterialPageRoute(
-          builder: (context) =>
-              PaymentConfirmationView(paymentViewModel: paymentVM),
-        ),
-      );
-
-      // Handle result
-      if (result == true) {
-        // Payment successful - clear data
-        paymentVM.reset();
-        _studentIdController.clear();
-
-        _ballanceController.text = CurrencyFormatter.format(
-          _currentUser.availableBalance,
-        );
-
-        // Show success message
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Thanh toán thành công! Vui lòng kiểm tra lịch sử giao dịch.',
-              ),
-              backgroundColor: Colors.green,
-              duration: Duration(seconds: 3),
-            ),
-          );
-
-          // Call callback to switch tab after short delay
-          if (widget.onPaymentSuccess != null) {
-            Future.delayed(const Duration(milliseconds: 500), () {
-              widget.onPaymentSuccess!();
-            });
-          }
-        }
-      } else if (result == false) {
-        // User cancelled - keep data as is
-        // paymentVM will still have the form data
-      }
-    }
-  }
-
-  void _searchForMe(PaymentViewModel paymentVM) {
-    final authVM = Provider.of<AuthViewModel>(context, listen: false);
-    final currentUser = authVM.currentUser;
-
-    if (currentUser != null) {
-      _studentIdController.text = currentUser.username;
-      _searchStudent(paymentVM);
-    }
-  }
-
-  void _searchStudent(PaymentViewModel paymentVM) {
-    final studentId = _studentIdController.text.trim();
-
-    if (studentId.isEmpty) {
-      paymentVM.setError('Vui lòng nhập mã số sinh viên bao gồm 8 ký tự');
-      return;
-    }
-
-    if (studentId.length != 8) {
-      paymentVM.setError('Vui lòng nhập mã số sinh viên bao gồm 8 ký tự');
-      return;
-    }
-
-    // Clear any previous error
-    paymentVM.clearError();
-    paymentVM.searchStudent(studentId);
-  }
-
-  Widget _buildReadOnlyField({
-    required String label,
-    required String value,
-    TextEditingController? controller,
-  }) {
-    if (controller != null) {
-      controller.text = value;
-      return TextFormField(
-        controller: controller,
-        decoration: InputDecoration(labelText: label),
-        readOnly: true,
-      );
-    } else {
-      return TextFormField(
-        initialValue: value,
-        decoration: InputDecoration(labelText: label),
-        readOnly: true,
-      );
-    }
   }
 }

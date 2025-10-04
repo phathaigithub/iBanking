@@ -1,64 +1,72 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'viewmodels/auth_viewmodel.dart';
-import 'viewmodels/admin_viewmodel.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'providers/auth_provider.dart';
 import 'views/login_view.dart';
 import 'views/user_dashboard_view.dart';
 import 'views/admin_dashboard_view.dart';
+import 'views/api_test_view.dart';
+import 'views/json_parse_test_view.dart';
 import 'utils/app_theme.dart';
-import 'services/tuition_management_service.dart';
 
-void main() {
-  // Initialize sample data for demo
-  TuitionManagementService().initializeSampleData();
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-  runApp(const MainApp());
+  // Initialize SharedPreferences
+  final sharedPreferences = await SharedPreferences.getInstance();
+
+  runApp(
+    ProviderScope(
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(sharedPreferences),
+      ],
+      child: const MainApp(),
+    ),
+  );
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends ConsumerWidget {
   const MainApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // TODO: Remove this in production - Demo credentials for demo
-    print('DEBUG - Demo Accounts:');
-    print('Admin: admin/admin');
-    print('Students: 52200001/pass1, 52200002/pass2, 52200003/pass3');
-
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => AuthViewModel()),
-        ChangeNotifierProvider(create: (context) => AdminViewModel()),
-      ],
-      // child: MaterialApp(
-      //   title: 'TUI iBanking',
-      //   theme: AppTheme.lightTheme,
-      //   debugShowCheckedModeBanner: false,
-      //   initialRoute: '/',
-      //   routes: {
-      //     '/': (context) => const LoginView(),
-      //     '/login': (context) => const LoginView(),
-      //     '/user': (context) => const UserDashboardView(),
-      //     '/admin': (context) => const AdminDashboardView(),
-      //   },
-      // ),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 600, minWidth: 0),
-          child: MaterialApp(
-            title: 'TUI iBanking',
-            theme: AppTheme.lightTheme,
-            debugShowCheckedModeBanner: false,
-            initialRoute: '/',
-            routes: {
-              '/': (context) => const LoginView(),
-              '/login': (context) => const LoginView(),
-              '/user': (context) => const UserDashboardView(),
-              '/admin': (context) => const AdminDashboardView(),
-            },
-          ),
-        ),
-      ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    return MaterialApp(
+      title: 'TUI iBanking',
+      theme: AppTheme.lightTheme,
+      debugShowCheckedModeBanner: false,
+      home: const AuthWrapper(),
+      routes: {
+        '/login': (context) => const LoginView(),
+        '/user': (context) => const UserDashboardView(),
+        '/admin': (context) => const AdminDashboardView(),
+        '/api-test': (context) => const ApiTestWidget(),
+        '/json-test': (context) => const JsonParseTestWidget(),
+      },
     );
+  }
+}
+
+class AuthWrapper extends ConsumerWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authProvider);
+
+    // Show loading while initializing
+    if (authState.isLoading && authState.token == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    // Show appropriate screen based on auth state
+    if (authState.isAuthenticated) {
+      if (authState.isAdmin) {
+        return const AdminDashboardView();
+      } else {
+        return const UserDashboardView();
+      }
+    }
+
+    return const LoginView();
   }
 }

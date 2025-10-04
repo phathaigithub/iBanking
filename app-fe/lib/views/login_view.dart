@@ -1,30 +1,43 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../viewmodels/auth_viewmodel.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/auth_provider.dart';
 import '../utils/app_theme.dart';
 
-class LoginView extends StatefulWidget {
-  const LoginView({Key? key}) : super(key: key);
+class LoginView extends ConsumerStatefulWidget {
+  const LoginView({super.key});
 
   @override
-  State<LoginView> createState() => _LoginViewState();
+  ConsumerState<LoginView> createState() => _LoginViewState();
 }
 
-class _LoginViewState extends State<LoginView> {
+class _LoginViewState extends ConsumerState<LoginView> {
   final _formKey = GlobalKey<FormState>();
-  final _studentCodeController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
   @override
   void dispose() {
-    _studentCodeController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+
+    // Listen for authentication changes and navigate
+    ref.listen<AuthState>(authProvider, (previous, next) {
+      if (next.isAuthenticated && !next.isLoading) {
+        if (next.isAdmin) {
+          Navigator.of(context).pushReplacementNamed('/admin');
+        } else {
+          Navigator.of(context).pushReplacementNamed('/user');
+        }
+      }
+    });
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -47,7 +60,7 @@ class _LoginViewState extends State<LoginView> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           // Logo and title
-                          Icon(
+                          const Icon(
                             Icons.account_balance,
                             size: 64,
                             color: AppColors.primary,
@@ -74,18 +87,15 @@ class _LoginViewState extends State<LoginView> {
                             child: Column(
                               children: [
                                 TextFormField(
-                                  controller: _studentCodeController,
+                                  controller: _usernameController,
                                   decoration: const InputDecoration(
-                                    labelText: 'Mã số sinh viên',
+                                    labelText: 'Tên đăng nhập',
                                     prefixIcon: Icon(Icons.person),
-                                    hintText: 'Nhập mã số sinh viên 8 ký tự',
+                                    hintText: 'Nhập tên đăng nhập',
                                   ),
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
-                                      return 'Vui lòng nhập mã số sinh viên';
-                                    }
-                                    if (value.length != 8 && value != 'admin') {
-                                      return 'Mã số sinh viên phải có 8 ký tự';
+                                      return 'Vui lòng nhập tên đăng nhập';
                                     }
                                     return null;
                                   },
@@ -119,72 +129,136 @@ class _LoginViewState extends State<LoginView> {
                                 ),
                                 const SizedBox(height: 24),
 
-                                // Login button
-                                Consumer<AuthViewModel>(
-                                  builder: (context, authVM, child) {
-                                    return Column(
+                                // Error message
+                                if (authState.error != null)
+                                  Container(
+                                    margin: const EdgeInsets.only(bottom: 16),
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.red[50],
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: Colors.red[200]!,
+                                      ),
+                                    ),
+                                    child: Row(
                                       children: [
-                                        if (authVM.errorMessage != null)
-                                          Container(
-                                            margin: const EdgeInsets.only(
-                                              bottom: 16,
+                                        Icon(
+                                          Icons.error_outline,
+                                          color: Colors.red[700],
+                                          size: 20,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            authState.error!,
+                                            style: TextStyle(
+                                              color: Colors.red[700],
+                                              fontSize: 14,
                                             ),
-                                            padding: const EdgeInsets.all(12),
-                                            decoration: BoxDecoration(
-                                              color: Colors.red[50],
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                              border: Border.all(
-                                                color: Colors.red[200]!,
-                                              ),
-                                            ),
-                                            child: Row(
-                                              children: [
-                                                Icon(
-                                                  Icons.error_outline,
-                                                  color: Colors.red[700],
-                                                  size: 20,
-                                                ),
-                                                const SizedBox(width: 8),
-                                                Expanded(
-                                                  child: Text(
-                                                    authVM.errorMessage!,
-                                                    style: TextStyle(
-                                                      color: Colors.red[700],
-                                                      fontSize: 14,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-
-                                        SizedBox(
-                                          width: double.infinity,
-                                          child: ElevatedButton(
-                                            onPressed: authVM.isLoading
-                                                ? null
-                                                : _login,
-                                            child: authVM.isLoading
-                                                ? const SizedBox(
-                                                    height: 20,
-                                                    width: 20,
-                                                    child: CircularProgressIndicator(
-                                                      strokeWidth: 2,
-                                                      valueColor:
-                                                          AlwaysStoppedAnimation<
-                                                            Color
-                                                          >(
-                                                            AppColors.onPrimary,
-                                                          ),
-                                                    ),
-                                                  )
-                                                : const Text('Đăng nhập'),
                                           ),
                                         ),
                                       ],
-                                    );
-                                  },
+                                    ),
+                                  ),
+
+                                // Login button
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: authState.isLoading
+                                        ? null
+                                        : _login,
+                                    child: authState.isLoading
+                                        ? const SizedBox(
+                                            height: 20,
+                                            width: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                    AppColors.onPrimary,
+                                                  ),
+                                            ),
+                                          )
+                                        : const Text('Đăng nhập'),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Development info
+                          const SizedBox(height: 24),
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.blue[50],
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.blue[200]!),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.info_outline,
+                                      color: Colors.blue[700],
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Thông tin kết nối:',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.blue[700],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '• Backend: localhost:8086\n'
+                                  '• Đảm bảo microservices đang chạy',
+                                  style: TextStyle(
+                                    color: Colors.blue[700],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(
+                                          context,
+                                        ).pushNamed('/api-test');
+                                      },
+                                      child: Text(
+                                        'Test API Connection',
+                                        style: TextStyle(
+                                          color: Colors.blue[700],
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(
+                                          context,
+                                        ).pushNamed('/json-test');
+                                      },
+                                      child: Text(
+                                        'Test JSON Parse',
+                                        style: TextStyle(
+                                          color: Colors.blue[700],
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
@@ -205,18 +279,14 @@ class _LoginViewState extends State<LoginView> {
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final authVM = Provider.of<AuthViewModel>(context, listen: false);
-    final success = await authVM.login(
-      _studentCodeController.text,
-      _passwordController.text,
-    );
+    final success = await ref
+        .read(authProvider.notifier)
+        .login(_usernameController.text.trim(), _passwordController.text);
 
     if (success && mounted) {
-      if (authVM.isAdmin) {
-        Navigator.of(context).pushReplacementNamed('/admin');
-      } else {
-        Navigator.of(context).pushReplacementNamed('/user');
-      }
+      // Navigation is handled by the listener in build method
+      _usernameController.clear();
+      _passwordController.clear();
     }
   }
 }

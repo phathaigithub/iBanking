@@ -1,58 +1,51 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../viewmodels/auth_viewmodel.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/auth_provider.dart';
+import '../utils/app_theme.dart';
 import 'payment_view.dart';
 import 'tuition_lookup_view.dart';
 import 'account_info_view.dart';
 
-class UserDashboardView extends StatefulWidget {
-  const UserDashboardView({Key? key}) : super(key: key);
+class UserDashboardView extends ConsumerStatefulWidget {
+  const UserDashboardView({super.key});
 
   @override
-  State<UserDashboardView> createState() => _UserDashboardViewState();
+  ConsumerState<UserDashboardView> createState() => _UserDashboardViewState();
 }
 
-class _UserDashboardViewState extends State<UserDashboardView> {
+class _UserDashboardViewState extends ConsumerState<UserDashboardView> {
   int _currentIndex = 0;
-
-  // Use late initialization to preserve state better
-  late final List<Widget> _pages;
-
-  @override
-  void initState() {
-    super.initState();
-    _pages = [
-      PaymentView(
-        key: const PageStorageKey('payment_view'),
-        onPaymentSuccess: () => _switchToTab(1), // Switch to lookup tab
-      ),
-      const TuitionLookupView(
-        key: PageStorageKey('tuition_lookup_view'),
-        initiallyShowMyTuition: true,
-      ),
-      const AccountInfoView(key: PageStorageKey('account_info_view')),
-    ];
-  }
-
-  void _switchToTab(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(currentUserProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('TUI iBanking'),
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.onPrimary,
         actions: [
+          if (user != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Center(
+                child: Text(
+                  'Xin chào, ${user.fullName}',
+                  style: const TextStyle(fontSize: 14),
+                ),
+              ),
+            ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () => _showLogoutDialog(context),
           ),
         ],
       ),
-      body: IndexedStack(index: _currentIndex, children: _pages),
+      body: IndexedStack(
+        index: _currentIndex,
+        children: const [PaymentView(), TuitionLookupView(), AccountInfoView()],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
@@ -94,8 +87,7 @@ class _UserDashboardViewState extends State<UserDashboardView> {
     );
 
     if (result == true && mounted) {
-      final authVM = Provider.of<AuthViewModel>(context, listen: false);
-      await authVM.logout();
+      await ref.read(authProvider.notifier).logout();
       if (mounted) {
         Navigator.of(context).pushReplacementNamed('/login');
       }
