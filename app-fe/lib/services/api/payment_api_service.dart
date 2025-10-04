@@ -1,7 +1,10 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../../routes/payment_routes.dart';
 import '../../config/api_routes.dart';
 import '../../models/api/payment_request.dart' as payment_request;
 import '../../models/api/payment_response.dart' as payment_model;
+import '../../models/api/payment_history_response.dart';
 import '../../models/api/otp_verification_request.dart';
 import 'api_client.dart';
 
@@ -59,7 +62,7 @@ class PaymentApiService {
     return PaymentStatus.fromJson(response['data']);
   }
 
-  Future<List<PaymentHistory>> getPaymentHistory(String userId) async {
+  Future<List<PaymentHistory>> getPaymentHistoryOld(String userId) async {
     final response = await _apiClient.get(
       url: PaymentRoutes.getPaymentHistory,
       headers: {...ApiRoutes.defaultHeaders, 'userId': userId},
@@ -123,6 +126,61 @@ class PaymentApiService {
       body: request.toJson(),
     );
     return payment_model.PaymentResponse.fromJson(response);
+  }
+
+  // Get payment history for a user
+  Future<List<PaymentHistoryResponse>> getPaymentHistory(int userId) async {
+    try {
+      // Try direct HTTP call first since API returns List directly
+      return await _getPaymentHistoryDirect(userId);
+    } catch (e) {
+      // Fallback to ApiClient if direct call fails
+      try {
+        final response = await _apiClient.get(
+          url: '${ApiRoutes.paymentServiceEndpoint}/payments/history/$userId',
+        );
+
+        // ApiClient returns Map, extract data field
+        final List<dynamic> historyJson =
+            response['data'] as List<dynamic>? ?? [];
+        return historyJson
+            .map(
+              (json) =>
+                  PaymentHistoryResponse.fromJson(json as Map<String, dynamic>),
+            )
+            .toList();
+      } catch (e2) {
+        throw Exception('Failed to load payment history: $e');
+      }
+    }
+  }
+
+  Future<List<PaymentHistoryResponse>> _getPaymentHistoryDirect(
+    int userId,
+  ) async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+          '${ApiRoutes.paymentServiceEndpoint}/payments/history/$userId',
+        ),
+        headers: ApiRoutes.defaultHeaders,
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> historyJson =
+            jsonDecode(response.body) as List<dynamic>;
+        return historyJson
+            .map(
+              (json) =>
+                  PaymentHistoryResponse.fromJson(json as Map<String, dynamic>),
+            )
+            .toList();
+      } else {
+        throw Exception('HTTP ${response.statusCode}: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load payment history: $e');
+    }
   }
 
   void dispose() {
