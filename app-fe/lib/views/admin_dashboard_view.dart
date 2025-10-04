@@ -11,6 +11,7 @@ import '../providers/admin_provider.dart';
 import '../providers/admin_tuition_provider.dart';
 import '../models/api/tuition_response.dart';
 import '../utils/app_theme.dart';
+import 'create_tuition_period_view.dart';
 
 class AdminDashboardView extends ConsumerStatefulWidget {
   const AdminDashboardView({super.key});
@@ -209,7 +210,7 @@ class _AdminDashboardViewState extends ConsumerState<AdminDashboardView> {
       case AdminViewTab.tuition:
         return _buildTuitionView();
       case AdminViewTab.createTuitionPeriod:
-        return _buildPlaceholder('Tạo đợt đóng học phí');
+        return const CreateTuitionPeriodView();
     }
   }
 
@@ -394,21 +395,6 @@ class _AdminDashboardViewState extends ConsumerState<AdminDashboardView> {
         onRefresh: () {
           ref.read(adminDashboardProvider.notifier).loadStudents();
         },
-      ),
-    );
-  }
-
-  Widget _buildPlaceholder(String title) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.construction, size: 64, color: Colors.orange),
-          const SizedBox(height: 16),
-          Text(title, style: AppTextStyles.heading2),
-          const SizedBox(height: 8),
-          const Text('Đang phát triển...'),
-        ],
       ),
     );
   }

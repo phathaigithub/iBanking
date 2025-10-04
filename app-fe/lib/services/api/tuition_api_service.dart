@@ -3,6 +3,8 @@ import '../../config/api_routes.dart';
 import '../../models/tuition_payment_period.dart';
 import '../../models/student_tuition.dart';
 import '../../models/api/tuition_response.dart';
+import '../../models/api/create_tuition_period_request.dart';
+import '../../models/api/create_tuition_period_response.dart';
 import 'api_client.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -244,6 +246,18 @@ class TuitionApiService {
     } catch (e) {
       throw Exception('Failed to search tuitions: $e');
     }
+  }
+
+  // Create Tuition Period by Major
+  Future<CreateTuitionPeriodResponse> createTuitionPeriodByMajor(
+    CreateTuitionPeriodRequest request,
+  ) async {
+    final response = await _apiClient.post(
+      url: '${ApiRoutes.tuitionServiceEndpoint}/tuition/create-by-major',
+      body: request.toJson(),
+    );
+
+    return CreateTuitionPeriodResponse.fromJson(response);
   }
 
   void dispose() {

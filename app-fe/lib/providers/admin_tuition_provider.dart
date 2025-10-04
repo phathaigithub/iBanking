@@ -100,6 +100,16 @@ class AdminTuitionState {
       }).toList();
     }
 
+    // Sort data: semester descending, then student code ascending
+    filtered.sort((a, b) {
+      // First sort by semester (descending)
+      final semesterCompare = b.semester.compareTo(a.semester);
+      if (semesterCompare != 0) return semesterCompare;
+
+      // If same semester, sort by student code (ascending)
+      return a.studentCode.compareTo(b.studentCode);
+    });
+
     return filtered;
   }
 
