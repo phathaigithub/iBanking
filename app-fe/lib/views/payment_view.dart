@@ -12,153 +12,134 @@ class PaymentView extends ConsumerWidget {
     final user = ref.watch(currentUserProvider);
 
     if (user == null) {
-      return const Center(child: Text('Không có thông tin người dùng'));
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: Text(
+            'Không có thông tin người dùng',
+            style: TextStyle(fontSize: 16, color: Colors.grey),
+          ),
+        ),
+      );
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+    return Padding(
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Thanh toán học phí', style: AppTextStyles.heading2),
-          const SizedBox(height: 24),
-
-          // User Info Card
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Thông tin người nộp', style: AppTextStyles.heading3),
-                  const SizedBox(height: 16),
-                  _buildInfoRow('Họ và tên:', user.fullName),
-                  const SizedBox(height: 12),
-                  _buildInfoRow('Số điện thoại:', user.phone),
-                  const SizedBox(height: 12),
-                  _buildInfoRow('Email:', user.email),
-                  const SizedBox(height: 12),
-                  _buildInfoRow(
-                    'Số dư khả dụng:',
-                    CurrencyFormatter.format(user.balance),
-                    valueColor: AppColors.primary,
-                    valueFontWeight: FontWeight.bold,
-                  ),
-                ],
+          // Header
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(Icons.payment, color: AppColors.primary, size: 24),
               ),
-            ),
+              const SizedBox(width: 12),
+              const Text(
+                'Thanh toán học phí',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ],
           ),
 
           const SizedBox(height: 24),
 
-          // Payment Form - Placeholder
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Thông tin sinh viên', style: AppTextStyles.heading3),
-                  const SizedBox(height: 16),
-                  const TextField(
-                    decoration: InputDecoration(
-                      labelText: 'Mã số sinh viên',
-                      hintText: 'Nhập mã số sinh viên (8 ký tự)',
-                      border: OutlineInputBorder(),
-                    ),
+          // Student Search Form
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey[200]!),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Tìm kiếm sinh viên',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 16),
+                const TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Mã học phí',
+                    hintText: 'Nhập mã học phí',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.receipt_long),
                   ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Chức năng đang được phát triển. Vui lòng liên hệ với backend để tích hợp API.',
-                            ),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.search),
-                      label: const Text('Tìm kiếm'),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.blue[50],
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.blue[200]!),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.info_outline,
-                              color: Colors.blue[700],
-                              size: 20,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Lưu ý:',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue[700],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '• Chức năng thanh toán đang được tích hợp với backend\n'
-                          '• Vui lòng chờ cập nhật API endpoints',
-                          style: TextStyle(
-                            color: Colors.blue[700],
-                            fontSize: 12,
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Chức năng đang được phát triển. Vui lòng chờ cập nhật API.',
                           ),
                         ),
-                      ],
+                      );
+                    },
+                    icon: const Icon(Icons.search),
+                    label: const Text('Tìm kiếm'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // Info Card
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.blue[50],
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.blue[200]!),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.info_outline, color: Colors.blue[700], size: 20),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Thông tin',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue[700],
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  '• Chức năng thanh toán đang được tích hợp với backend\n'
+                  '• Vui lòng chờ cập nhật API endpoints\n'
+                  '• Số dư hiện tại: ${CurrencyFormatter.format(user.balance)}',
+                  style: TextStyle(
+                    color: Colors.blue[700],
+                    fontSize: 14,
+                    height: 1.5,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildInfoRow(
-    String label,
-    String value, {
-    Color? valueColor,
-    FontWeight? valueFontWeight,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 140,
-          child: Text(
-            label,
-            style: AppTextStyles.body2.copyWith(color: Colors.grey[600]),
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: AppTextStyles.body1.copyWith(
-              color: valueColor,
-              fontWeight: valueFontWeight,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }
