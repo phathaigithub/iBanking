@@ -5,13 +5,14 @@ meta {
 }
 
 get {
-  url: {{PrefixURL}}/tuition-service/api/tuition/search?code=CNTT
+  url: {{PrefixURL}}/tuition-service/api/tuition/search?code=CNTT&semester=32025
   body: none
   auth: inherit
 }
 
 params:query {
   code: CNTT
+  semester: 32025
 }
 
 settings {
