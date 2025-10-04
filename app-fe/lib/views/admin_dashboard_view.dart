@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tui_ibank/widgets/refresh_button.dart';
-import 'package:tui_ibank/widgets/student_grid.dart';
+import 'package:tui_ibank/widgets/student_table.dart';
 import 'package:tui_ibank/widgets/major_icon.dart';
+import 'package:tui_ibank/widgets/add_student_dialog.dart';
 import '../providers/auth_provider.dart';
 import '../providers/admin_provider.dart';
 import '../utils/app_theme.dart';
@@ -215,7 +216,6 @@ class _AdminDashboardViewState extends ConsumerState<AdminDashboardView> {
         Container(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(
                 width: 320, // 2 buttons, each 160 width
@@ -240,6 +240,26 @@ class _AdminDashboardViewState extends ConsumerState<AdminDashboardView> {
                   },
                 ),
               ),
+              const Spacer(),
+              if (state.majorStudentTab == MajorStudentTab.students)
+                ElevatedButton.icon(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => const AddStudentDialog(),
+                    );
+                  },
+                  icon: const Icon(Icons.add),
+                  label: const Text('Thêm sinh viên'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -360,88 +380,16 @@ class _AdminDashboardViewState extends ConsumerState<AdminDashboardView> {
   }
 
   Widget _buildStudentsContent(AdminDashboardState state) {
-    if (state.isLoadingStudents) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (state.errorStudents != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const SizedBox(height: 16),
-            Text(state.errorStudents!),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                ref.read(adminDashboardProvider.notifier).loadStudents();
-              },
-              child: const Text('Thử lại'),
-            ),
-          ],
-        ),
-      );
-    }
-
-    if (state.students.isEmpty) {
-      return const Center(child: Text('Không có sinh viên nào'));
-    }
-
-    final studentsByMajor = state.studentsByMajor;
-
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-      child: Card(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Text('Danh sách sinh viên', style: AppTextStyles.heading3),
-                  const Spacer(),
-                  Text(
-                    'Tổng: ${state.students.length} sinh viên',
-                    style: TextStyle(color: Colors.grey[600]),
-                  ),
-                  const SizedBox(width: 16),
-                  RefreshButton(
-                    isLoading: state.isLoadingStudents,
-                    onPressed: () {
-                      ref.read(adminDashboardProvider.notifier).loadStudents();
-                    },
-                    tooltip: 'Làm mới danh sách sinh viên',
-                  ),
-                ],
-              ),
-            ),
-            const Divider(height: 1),
-            Expanded(
-              child: ListView.builder(
-                itemCount: studentsByMajor.length,
-                itemBuilder: (context, index) {
-                  final majorCode = studentsByMajor.keys.elementAt(index);
-                  final students = studentsByMajor[majorCode]!;
-                  final majorName = students.first.majorName;
-
-                  return ExpansionTile(
-                    leading: MajorIcon(majorCode: majorCode),
-                    title: Text(
-                      majorName,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(
-                      'Mã: $majorCode • ${students.length} sinh viên',
-                    ),
-                    children: [StudentGrid(students: students)],
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+      child: StudentTable(
+        students: state.students,
+        majors: state.majors,
+        isLoading: state.isLoadingStudents,
+        error: state.errorStudents,
+        onRefresh: () {
+          ref.read(adminDashboardProvider.notifier).loadStudents();
+        },
       ),
     );
   }

@@ -136,6 +136,25 @@ class AdminDashboardNotifier extends StateNotifier<AdminDashboardState> {
     }
   }
 
+  Future<void> searchStudents(String query) async {
+    if (query.trim().isEmpty) {
+      // If query is empty, reload all students
+      await loadStudents();
+      return;
+    }
+
+    state = state.copyWith(isLoadingStudents: true, clearErrorStudents: true);
+    try {
+      final students = await _studentApiService.searchStudentDetails(query);
+      state = state.copyWith(students: students, isLoadingStudents: false);
+    } catch (e) {
+      state = state.copyWith(
+        isLoadingStudents: false,
+        errorStudents: 'Không thể tìm kiếm sinh viên: ${e.toString()}',
+      );
+    }
+  }
+
   void clearErrorMajors() {
     state = state.copyWith(clearErrorMajors: true);
   }
