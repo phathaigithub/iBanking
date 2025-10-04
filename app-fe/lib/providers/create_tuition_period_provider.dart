@@ -176,7 +176,7 @@ class CreateTuitionPeriodNotifier
           orElse: () => throw Exception('Major not found'),
         );
         errorMessage =
-            'Khoa ${major.name} đã có học phí ở học kỳ ${state.selectedSemester} năm ${state.academicYear}.';
+            'Khoa ${major.name} chưa có học viên hoặc đã có học phí ở học kỳ ${state.selectedSemester} năm ${state.academicYear}.';
       } else {
         errorMessage = 'Không thể tạo đợt đóng học phí: $e';
       }

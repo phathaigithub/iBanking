@@ -5,7 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6e3e51be-fba3-41b3-a410-88e79995d7ec" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../bruno-api/iBankingAPI copy/Tìm kiếm học phí theo kỳ hoặc theo mã ngành.bru" beforeDir="false" afterPath="$PROJECT_DIR$/../bruno-api/iBankingAPI copy/Tìm kiếm học phí theo kỳ hoặc theo mã ngành.bru" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app-fe/lib/providers/create_tuition_period_provider.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../app-fe/lib/providers/create_tuition_period_provider.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app-fe/lib/views/account_info_view.dart.bak" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app-fe/lib/views/add_student_view.dart.bak" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app-fe/lib/views/admin_dashboard_view.dart.old" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app-fe/lib/views/student_management_view.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app-fe/lib/views/user_dashboard_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../app-fe/lib/views/user_dashboard_view.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
