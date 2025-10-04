@@ -101,6 +101,9 @@ class _StudentTableState extends ConsumerState<StudentTable> {
         // Search and Filter Section
         _buildSearchAndFilterSection(),
 
+        // Spacing between search card and table
+        const SizedBox(height: 12),
+
         // Table Section
         Expanded(
           child: Card(
@@ -136,16 +139,51 @@ class _StudentTableState extends ConsumerState<StudentTable> {
       ),
       child: Column(
         children: [
+          // Header Row with title, results, and action buttons
           Row(
             children: [
-              const Icon(Icons.search, color: AppColors.primary),
-              const SizedBox(width: 8),
+              // Title
+              Row(
+                children: [
+                  const Icon(Icons.search, color: AppColors.primary),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Tìm kiếm và lọc',
+                    style: AppTextStyles.heading3.copyWith(
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ],
+              ),
+              const Spacer(),
+              // Results count
               Text(
-                'Tìm kiếm và lọc sinh viên',
-                style: AppTextStyles.heading3.copyWith(
-                  color: AppColors.primary,
+                'Kết quả: ${_filteredStudents.length}/${widget.students.length}',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w500,
                 ),
               ),
+              const SizedBox(width: 16),
+              // Action buttons
+              OutlinedButton.icon(
+                onPressed: () {
+                  setState(() {
+                    _searchController.clear();
+                    _selectedMajorCode = null;
+                  });
+                  _applyFilters();
+                },
+                icon: const Icon(Icons.clear_all),
+                label: const Text('Xóa bộ lọc'),
+              ),
+              const SizedBox(width: 8),
+              if (widget.onRefresh != null)
+                IconButton(
+                  onPressed: widget.onRefresh,
+                  icon: const Icon(Icons.refresh),
+                  tooltip: 'Làm mới dữ liệu',
+                ),
             ],
           ),
           const SizedBox(height: 16),
@@ -273,41 +311,6 @@ class _StudentTableState extends ConsumerState<StudentTable> {
                   foregroundColor: Colors.white,
                 ),
               ),
-            ],
-          ),
-
-          const SizedBox(height: 12),
-
-          // Results Summary
-          Row(
-            children: [
-              Text(
-                'Kết quả: ${_filteredStudents.length}/${widget.students.length} sinh viên',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const Spacer(),
-              // Clear Filters Button
-              OutlinedButton.icon(
-                onPressed: () {
-                  setState(() {
-                    _searchController.clear();
-                    _selectedMajorCode = null;
-                  });
-                  _applyFilters();
-                },
-                icon: const Icon(Icons.clear_all),
-                label: const Text('Xóa bộ lọc'),
-              ),
-              const SizedBox(width: 16),
-              if (widget.onRefresh != null)
-                IconButton(
-                  onPressed: widget.onRefresh,
-                  icon: const Icon(Icons.refresh),
-                  tooltip: 'Làm mới dữ liệu',
-                ),
             ],
           ),
         ],

@@ -5,13 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6e3e51be-fba3-41b3-a410-88e79995d7ec" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../app-fe/ADD_STUDENT_FEATURE_SUMMARY.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../app-fe/lib/models/api/add_student_request.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../app-fe/lib/models/api/add_student_request.g.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../app-fe/lib/providers/add_student_dialog_provider.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../app-fe/lib/widgets/add_student_dialog.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../app-fe/lib/services/api/student_api_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../app-fe/lib/services/api/student_api_service.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../app-fe/lib/views/admin_dashboard_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../app-fe/lib/views/admin_dashboard_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../bruno-api/iBankingAPI copy/Tìm kiếm học phí theo kỳ hoặc theo mã ngành.bru" beforeDir="false" afterPath="$PROJECT_DIR$/../bruno-api/iBankingAPI copy/Tìm kiếm học phí theo kỳ hoặc theo mã ngành.bru" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -122,10 +116,10 @@
               <entry key="ApiGatewayApplication" value="STOPPED" />
               <entry key="EurekaServerApplication" value="STOPPED" />
               <entry key="NotificationServiceApplication" value="STOPPED" />
-              <entry key="PaymentServiceApplication" value="FAILED" />
-              <entry key="StudentServiceApplication" value="FAILED" />
-              <entry key="TuitionServiceApplication" value="FAILED" />
-              <entry key="UserServiceApplication" value="FAILED" />
+              <entry key="PaymentServiceApplication" value="STOPPED" />
+              <entry key="StudentServiceApplication" value="STOPPED" />
+              <entry key="TuitionServiceApplication" value="STOPPED" />
+              <entry key="UserServiceApplication" value="STOPPED" />
             </map>
           </value>
         </entry>

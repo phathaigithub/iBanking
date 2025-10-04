@@ -1,7 +1,11 @@
 import '../../routes/tuition_routes.dart';
+import '../../config/api_routes.dart';
 import '../../models/tuition_payment_period.dart';
 import '../../models/student_tuition.dart';
+import '../../models/api/tuition_response.dart';
 import 'api_client.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class TuitionApiService {
   final ApiClient _apiClient;
@@ -113,6 +117,132 @@ class TuitionApiService {
       return true;
     } catch (e) {
       return false;
+    }
+  }
+
+  // Admin Tuition Management
+  Future<List<TuitionResponse>> getAllTuitions() async {
+    try {
+      // Try direct HTTP call first since API returns List directly
+      return await _getAllTuitionsDirect();
+    } catch (e) {
+      // Fallback to ApiClient if direct call fails
+      try {
+        final response = await _apiClient.get(
+          url: '${ApiRoutes.tuitionServiceEndpoint}/tuition',
+        );
+        final List<dynamic> tuitionsJson = response['data'] ?? response;
+        return tuitionsJson
+            .map((json) => TuitionResponse.fromJson(json))
+            .toList();
+      } catch (e2) {
+        throw Exception('Failed to load tuitions: $e');
+      }
+    }
+  }
+
+  Future<List<TuitionResponse>> _getAllTuitionsDirect() async {
+    try {
+      final response = await http.get(
+        Uri.parse('${ApiRoutes.tuitionServiceEndpoint}/tuition'),
+        headers: ApiRoutes.defaultHeaders,
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> tuitionsJson =
+            jsonDecode(response.body) as List<dynamic>;
+        return tuitionsJson
+            .map(
+              (json) => TuitionResponse.fromJson(json as Map<String, dynamic>),
+            )
+            .toList();
+      } else {
+        throw Exception('HTTP ${response.statusCode}: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load tuitions: $e');
+    }
+  }
+
+  Future<List<TuitionResponse>> searchTuitions({
+    String? majorCode,
+    String? semester,
+  }) async {
+    try {
+      // Try direct HTTP call first since API returns List directly
+      return await _searchTuitionsDirect(
+        majorCode: majorCode,
+        semester: semester,
+      );
+    } catch (e) {
+      // Fallback to ApiClient if direct call fails
+      try {
+        final queryParams = <String, String>{};
+        if (majorCode != null && majorCode.isNotEmpty) {
+          queryParams['code'] = majorCode;
+        }
+        if (semester != null && semester.isNotEmpty) {
+          queryParams['semester'] = semester;
+        }
+
+        final queryString = queryParams.entries
+            .map((e) => '${e.key}=${e.value}')
+            .join('&');
+
+        final url = queryString.isNotEmpty
+            ? '${ApiRoutes.tuitionServiceEndpoint}/tuition/search?$queryString'
+            : '${ApiRoutes.tuitionServiceEndpoint}/tuition/search';
+
+        final response = await _apiClient.get(url: url);
+        final List<dynamic> tuitionsJson = response['data'] ?? response;
+        return tuitionsJson
+            .map((json) => TuitionResponse.fromJson(json))
+            .toList();
+      } catch (e2) {
+        throw Exception('Failed to search tuitions: $e');
+      }
+    }
+  }
+
+  Future<List<TuitionResponse>> _searchTuitionsDirect({
+    String? majorCode,
+    String? semester,
+  }) async {
+    try {
+      final queryParams = <String, String>{};
+      if (majorCode != null && majorCode.isNotEmpty) {
+        queryParams['code'] = majorCode;
+      }
+      if (semester != null && semester.isNotEmpty) {
+        queryParams['semester'] = semester;
+      }
+
+      final queryString = queryParams.entries
+          .map((e) => '${e.key}=${e.value}')
+          .join('&');
+
+      final url = queryString.isNotEmpty
+          ? '${ApiRoutes.tuitionServiceEndpoint}/tuition/search?$queryString'
+          : '${ApiRoutes.tuitionServiceEndpoint}/tuition/search';
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: ApiRoutes.defaultHeaders,
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> tuitionsJson =
+            jsonDecode(response.body) as List<dynamic>;
+        return tuitionsJson
+            .map(
+              (json) => TuitionResponse.fromJson(json as Map<String, dynamic>),
+            )
+            .toList();
+      } else {
+        throw Exception('HTTP ${response.statusCode}: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Failed to search tuitions: $e');
     }
   }
 

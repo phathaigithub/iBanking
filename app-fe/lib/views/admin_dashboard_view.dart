@@ -4,8 +4,12 @@ import 'package:tui_ibank/widgets/refresh_button.dart';
 import 'package:tui_ibank/widgets/student_table.dart';
 import 'package:tui_ibank/widgets/major_icon.dart';
 import 'package:tui_ibank/widgets/add_student_dialog.dart';
+import 'package:tui_ibank/widgets/tuition_table.dart';
+import 'package:tui_ibank/widgets/tuition_search_card.dart';
 import '../providers/auth_provider.dart';
 import '../providers/admin_provider.dart';
+import '../providers/admin_tuition_provider.dart';
+import '../models/api/tuition_response.dart';
 import '../utils/app_theme.dart';
 
 class AdminDashboardView extends ConsumerStatefulWidget {
@@ -203,7 +207,7 @@ class _AdminDashboardViewState extends ConsumerState<AdminDashboardView> {
       case AdminViewTab.majorsAndStudents:
         return _buildMajorsAndStudentsView(state);
       case AdminViewTab.tuition:
-        return _buildPlaceholder('Quản lý học phí');
+        return _buildTuitionView();
       case AdminViewTab.createTuitionPeriod:
         return _buildPlaceholder('Tạo đợt đóng học phí');
     }
@@ -406,6 +410,202 @@ class _AdminDashboardViewState extends ConsumerState<AdminDashboardView> {
           const Text('Đang phát triển...'),
         ],
       ),
+    );
+  }
+
+  Widget _buildTuitionView() {
+    final tuitionState = ref.watch(adminTuitionProvider);
+    final tuitionNotifier = ref.read(adminTuitionProvider.notifier);
+
+    return Column(
+      children: [
+        // View mode switcher
+        Container(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 400, // Increased width as requested
+                child: SegmentedButton<TuitionViewMode>(
+                  segments: const [
+                    ButtonSegment(
+                      value: TuitionViewMode.all,
+                      label: Text('Tất cả'),
+                      icon: Icon(Icons.list),
+                    ),
+                    ButtonSegment(
+                      value: TuitionViewMode.byMajor,
+                      label: Text('Xem theo ngành'),
+                      icon: Icon(Icons.business),
+                    ),
+                  ],
+                  selected: {tuitionState.viewMode},
+                  onSelectionChanged: (Set<TuitionViewMode> newSelection) {
+                    tuitionNotifier.setViewMode(newSelection.first);
+                  },
+                ),
+              ),
+              const SizedBox(width: 16),
+              // Semester dropdown moved to the right of segment button
+              SizedBox(
+                width: 200,
+                child: DropdownButtonFormField<String>(
+                  initialValue: tuitionState.selectedSemester,
+                  decoration: InputDecoration(
+                    labelText: 'Học kỳ',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                  ),
+                  items: tuitionState.availableSemestersForDropdown.map((
+                    semester,
+                  ) {
+                    if (semester == 'Tất cả học kỳ') {
+                      return DropdownMenuItem(
+                        value: semester,
+                        child: Text(semester),
+                      );
+                    }
+                    // Create a temporary TuitionResponse to get formatted display
+                    final tempTuition = TuitionResponse(
+                      tuitionCode: '',
+                      studentCode: '',
+                      semester: semester,
+                      amount: 0,
+                      status: '',
+                    );
+                    return DropdownMenuItem(
+                      value: semester,
+                      child: Text(tempTuition.semesterDisplay),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    tuitionNotifier.setSelectedSemester(value);
+                  },
+                ),
+              ),
+              const SizedBox(width: 16),
+              // Major dropdown moved to the right of semester dropdown
+              if (tuitionState.viewMode == TuitionViewMode.byMajor)
+                SizedBox(
+                  width: 250,
+                  child: DropdownButtonFormField<String>(
+                    initialValue: tuitionState.selectedMajorCode,
+                    decoration: InputDecoration(
+                      labelText: 'Ngành học',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                    ),
+                    items: tuitionState.majors.map((major) {
+                      return DropdownMenuItem(
+                        value: major.code,
+                        child: IntrinsicWidth(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              MajorIcon(majorCode: major.code, size: 16),
+                              const SizedBox(width: 8),
+                              Flexible(
+                                child: Text(
+                                  major.name,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      tuitionNotifier.setSelectedMajor(value);
+                    },
+                  ),
+                ),
+              const Spacer(),
+              // Refresh button
+              RefreshButton(
+                onPressed: () {
+                  tuitionNotifier.refreshTuitions();
+                },
+                isLoading: tuitionState.isLoading,
+                tooltip: 'Làm mới danh sách học phí',
+              ),
+            ],
+          ),
+        ),
+
+        // Search and filter card
+        const TuitionSearchCard(),
+
+        // Results summary
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              Text(
+                'Tìm thấy ${tuitionState.filteredTuitions.length} học phí',
+                style: AppTextStyles.body2.copyWith(color: Colors.grey[600]),
+              ),
+              const Spacer(),
+              if (tuitionState.error != null)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.red[50],
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.red[200]!),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        size: 16,
+                        color: Colors.red[700],
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        tuitionState.error!,
+                        style: TextStyle(color: Colors.red[700], fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        // Tuition table
+        Expanded(
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey[200]!),
+            ),
+            child: TuitionTable(
+              tuitions: tuitionState.filteredTuitions,
+              isLoading: tuitionState.isLoading,
+              error: tuitionState.error,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
