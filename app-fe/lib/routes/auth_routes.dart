@@ -3,13 +3,13 @@ import '../config/api_routes.dart';
 /// Authentication API Routes
 /// Contains all authentication-related endpoints and their specific error codes
 class AuthRoutes {
-  static const String _baseUrl = ApiRoutes.userServiceEndpoint;
+  static String get _baseUrl => ApiRoutes.userServiceEndpoint;
 
   // Authentication Endpoints
-  static const String login = '$_baseUrl/auth/login';
-  static const String me = '$_baseUrl/auth/me';
-  static const String refresh = '$_baseUrl/auth/refresh';
-  static const String logout = '$_baseUrl/auth/logout';
+  static String get login => '$_baseUrl/auth/login';
+  static String get me => '$_baseUrl/auth/me';
+  static String get refresh => '$_baseUrl/auth/refresh';
+  static String get logout => '$_baseUrl/auth/logout';
 
   // Authentication Error Codes
   static const Map<String, String> errorCodes = {

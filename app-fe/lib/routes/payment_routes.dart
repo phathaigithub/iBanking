@@ -3,23 +3,23 @@ import '../config/api_routes.dart';
 /// Payment API Routes
 /// Contains all payment-related endpoints and their specific error codes
 class PaymentRoutes {
-  static const String _baseUrl = ApiRoutes.paymentServiceEndpoint;
+  static String get _baseUrl => ApiRoutes.paymentServiceEndpoint;
 
   // Payment Endpoints
-  static const String initiatePayment = '$_baseUrl/payments/initiate';
-  static const String confirmPayment = '$_baseUrl/payments/confirm';
-  static const String cancelPayment =
+  static String get initiatePayment => '$_baseUrl/payments/initiate';
+  static String get confirmPayment => '$_baseUrl/payments/confirm';
+  static String get cancelPayment =>
       '$_baseUrl/payments'; // DELETE /payments/{id}
-  static const String getPaymentStatus =
+  static String get getPaymentStatus =>
       '$_baseUrl/payments'; // GET /payments/{id}
-  static const String getPaymentHistory = '$_baseUrl/payments/history';
-  static const String getPaymentByTransactionId =
+  static String get getPaymentHistory => '$_baseUrl/payments/history';
+  static String get getPaymentByTransactionId =>
       '$_baseUrl/payments/transaction'; // GET /payments/transaction/{transactionId}
 
   // OTP Endpoints
-  static const String generateOTP = '$_baseUrl/otp/generate';
-  static const String verifyOTP = '$_baseUrl/otp/verify';
-  static const String resendOTP = '$_baseUrl/otp/resend';
+  static String get generateOTP => '$_baseUrl/otp/generate';
+  static String get verifyOTP => '$_baseUrl/otp/verify';
+  static String get resendOTP => '$_baseUrl/otp/resend';
 
   // Payment Error Codes
   static const Map<String, String> errorCodes = {

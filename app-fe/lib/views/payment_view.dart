@@ -140,7 +140,7 @@ class _PaymentViewState extends ConsumerState<PaymentView> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Nhập mã học phí để thanh toán. Mã học phí sẽ hiển thị trong 30 giây sau khi tìm thấy.',
+                    'Nhập mã học phí để thanh toán. Thông tin học phí sẽ hiển thị trong ${PaymentConfig.tuitionCardDisplayDuration} giây sau khi tìm thấy.',
                     style: TextStyle(fontSize: 14, color: Colors.blue[700]),
                   ),
                 ),

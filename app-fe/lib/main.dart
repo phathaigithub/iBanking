@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'config/api_routes.dart';
 import 'providers/auth_provider.dart';
 import 'views/login_view.dart';
 import 'views/user_dashboard_view.dart';
@@ -14,6 +15,9 @@ void main() async {
 
   // Initialize SharedPreferences
   final sharedPreferences = await SharedPreferences.getInstance();
+
+  // Initialize API Routes with saved endpoint
+  await ApiRoutes.initialize(sharedPreferences);
 
   runApp(
     ProviderScope(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tui_ibank/utils/context_utils.dart';
 import '../providers/auth_provider.dart';
 import '../utils/app_theme.dart';
 import 'payment_view.dart';
@@ -20,8 +21,7 @@ class _UserDashboardViewState extends ConsumerState<UserDashboardView> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider);
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 900;
+    final isMobile = ContextUtils.isMobile(context: context);
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -142,31 +142,29 @@ class _UserDashboardViewState extends ConsumerState<UserDashboardView> {
 
               // Content area
               Expanded(
-                child: SingleChildScrollView(
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: IndexedStack(
-                        index: _currentIndex,
-                        children: const [
-                          PaymentView(),
-                          TuitionLookupView(),
-                          PaymentHistoryView(),
-                          AccountInfoView(),
-                        ],
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
                       ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: IndexedStack(
+                      index: _currentIndex,
+                      children: const [
+                        PaymentView(),
+                        TuitionLookupView(),
+                        PaymentHistoryView(),
+                        AccountInfoView(),
+                      ],
                     ),
                   ),
                 ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tui_ibank/utils/context_utils.dart';
 import 'package:tui_ibank/widgets/refresh_button.dart';
 import 'package:tui_ibank/widgets/student_table.dart';
 import 'package:tui_ibank/widgets/major_icon.dart';
@@ -34,26 +35,77 @@ class _AdminDashboardViewState extends ConsumerState<AdminDashboardView> {
   Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider);
     final adminState = ref.watch(adminDashboardProvider);
+    final isMobile = ContextUtils.isMobile(
+      context: context,
+      thresholdWidth: 1400,
+    );
 
     return Scaffold(
-      body: Row(
-        children: [
-          // Sidebar
-          _buildSidebar(context, adminState),
+      body: isMobile
+          ? _buildMobilePlaceholder()
+          : _buildDesktopView(user, adminState),
+    );
+  }
 
-          // Main content
-          Expanded(
-            child: Column(
-              children: [
-                // Top bar
-                _buildTopBar(context, user),
+  Widget _buildDesktopView(user, AdminDashboardState adminState) {
+    return Row(
+      children: [
+        // Sidebar
+        _buildSidebar(context, adminState),
 
-                // Content area
-                Expanded(child: _buildContent(context, adminState)),
-              ],
-            ),
+        // Main content
+        Expanded(
+          child: Column(
+            children: [
+              // Top bar
+              _buildTopBar(context, user),
+
+              // Content area
+              Expanded(child: _buildContent(context, adminState)),
+            ],
           ),
-        ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMobilePlaceholder() {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.all(40),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.desktop_windows, size: 80, color: Colors.grey[400]),
+            const SizedBox(height: 24),
+            Text(
+              'Admin Dashboard chỉ hỗ trợ giao diện desktop.',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[600],
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Vui lòng sử dụng máy tính hoặc thu nhỏ cửa sổ trình duyệt.',
+              style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

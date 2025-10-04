@@ -3,27 +3,27 @@ import '../config/api_routes.dart';
 /// Tuition API Routes
 /// Contains all tuition-related endpoints and their specific error codes
 class TuitionRoutes {
-  static const String _baseUrl = ApiRoutes.tuitionServiceEndpoint;
+  static String get _baseUrl => ApiRoutes.tuitionServiceEndpoint;
 
   // Tuition Period Endpoints
-  static const String getAllPeriods = '$_baseUrl/periods';
-  static const String getPeriodById = '$_baseUrl/periods'; // GET /periods/{id}
-  static const String createPeriod = '$_baseUrl/periods';
-  static const String updatePeriod = '$_baseUrl/periods'; // PUT /periods/{id}
-  static const String deletePeriod =
+  static String get getAllPeriods => '$_baseUrl/periods';
+  static String get getPeriodById => '$_baseUrl/periods'; // GET /periods/{id}
+  static String get createPeriod => '$_baseUrl/periods';
+  static String get updatePeriod => '$_baseUrl/periods'; // PUT /periods/{id}
+  static String get deletePeriod =>
       '$_baseUrl/periods'; // DELETE /periods/{id}
-  static const String getActivePeriods = '$_baseUrl/periods/active';
+  static String get getActivePeriods => '$_baseUrl/periods/active';
 
   // Student Tuition Endpoints
-  static const String getAllStudentTuitions = '$_baseUrl/student-tuitions';
-  static const String getStudentTuitionsByPeriod =
+  static String get getAllStudentTuitions => '$_baseUrl/student-tuitions';
+  static String get getStudentTuitionsByPeriod =>
       '$_baseUrl/student-tuitions/period'; // GET /student-tuitions/period/{periodId}
-  static const String getStudentTuitionsByStudent =
+  static String get getStudentTuitionsByStudent =>
       '$_baseUrl/student-tuitions/student'; // GET /student-tuitions/student/{studentId}
-  static const String createStudentTuition = '$_baseUrl/student-tuitions';
-  static const String updateStudentTuition =
+  static String get createStudentTuition => '$_baseUrl/student-tuitions';
+  static String get updateStudentTuition =>
       '$_baseUrl/student-tuitions'; // PUT /student-tuitions/{id}
-  static const String markTuitionPaid =
+  static String get markTuitionPaid =>
       '$_baseUrl/student-tuitions'; // PUT /student-tuitions/{id}/paid
 
   // Tuition Error Codes

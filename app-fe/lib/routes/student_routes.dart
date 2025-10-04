@@ -3,20 +3,20 @@ import '../config/api_routes.dart';
 /// Student API Routes
 /// Contains all student-related endpoints and their specific error codes
 class StudentRoutes {
-  static const String _baseUrl = ApiRoutes.studentServiceEndpoint;
+  static String get _baseUrl => ApiRoutes.studentServiceEndpoint;
 
   // Student Endpoints
-  static const String getAllStudents = '$_baseUrl/students';
-  static const String getStudentById =
+  static String get getAllStudents => '$_baseUrl/students';
+  static String get getStudentById =>
       '$_baseUrl/students'; // GET /students/{id}
-  static const String createStudent = '$_baseUrl/students';
-  static const String updateStudent =
+  static String get createStudent => '$_baseUrl/students';
+  static String get updateStudent =>
       '$_baseUrl/students'; // PUT /students/{id}
-  static const String deleteStudent =
+  static String get deleteStudent =>
       '$_baseUrl/students'; // DELETE /students/{id}
-  static const String getStudentTuitions =
+  static String get getStudentTuitions =>
       '$_baseUrl/students'; // GET /students/{id}/tuitions
-  static const String searchStudents = '$_baseUrl/students/search';
+  static String get searchStudents => '$_baseUrl/students/search';
 
   // Student Error Codes
   static const Map<String, String> errorCodes = {
