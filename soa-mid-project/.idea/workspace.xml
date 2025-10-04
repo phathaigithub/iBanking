@@ -5,7 +5,53 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6e3e51be-fba3-41b3-a410-88e79995d7ec" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../app-fe/API_ROUTES_GUIDE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/MIGRATION_GUIDE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/TESTING_GUIDE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/UPGRADE_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/api-res.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/config/api_config.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/config/api_routes.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/examples/api_usage_example.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/models/api/api_error.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/models/api/api_error.g.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/models/api/auth_response.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/models/api/auth_response.g.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/models/api/user_response.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/models/api/user_response.g.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/providers/auth_provider.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/routes/auth_routes.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/routes/payment_routes.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/routes/student_routes.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/routes/tuition_routes.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/services/api/api_client.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/services/api/auth_api_service.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/services/api/payment_api_service.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/services/api/student_api_service.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/services/api/tuition_api_service.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/views/account_info_view.dart.bak" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/views/add_student_view.dart.bak" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/views/admin_dashboard_view.dart.bak" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/views/api_test_view.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/views/json_parse_test_view.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/views/payment_confirmation_view.dart.bak" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/views/payment_view.dart.bak" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/views/tuition_lookup_view.dart.bak" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app-fe/lib/views/tuition_management_view.dart.bak" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app-fe/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../app-fe/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app-fe/lib/views/account_info_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../app-fe/lib/views/account_info_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app-fe/lib/views/add_student_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../app-fe/lib/views/add_student_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app-fe/lib/views/admin_dashboard_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../app-fe/lib/views/admin_dashboard_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app-fe/lib/views/login_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../app-fe/lib/views/login_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app-fe/lib/views/payment_confirmation_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../app-fe/lib/views/payment_confirmation_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app-fe/lib/views/payment_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../app-fe/lib/views/payment_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app-fe/lib/views/tuition_lookup_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../app-fe/lib/views/tuition_lookup_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app-fe/lib/views/tuition_management_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../app-fe/lib/views/tuition_management_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app-fe/lib/views/user_dashboard_view.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../app-fe/lib/views/user_dashboard_view.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app-fe/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../app-fe/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app-fe/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../app-fe/pubspec.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../bruno-api/environments/dev-env.bru" beforeDir="false" afterPath="$PROJECT_DIR$/../bruno-api/environments/dev-env.bru" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../bruno-api/iBankingAPI copy/Get me.bru" beforeDir="false" afterPath="$PROJECT_DIR$/../bruno-api/iBankingAPI copy/Get me.bru" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/student-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/student-service/src/main/resources/application.properties" afterDir="false" />
     </list>
@@ -117,10 +163,10 @@
               <entry key="ApiGatewayApplication" value="STOPPED" />
               <entry key="EurekaServerApplication" value="STOPPED" />
               <entry key="NotificationServiceApplication" value="STOPPED" />
-              <entry key="PaymentServiceApplication" value="FAILED" />
-              <entry key="StudentServiceApplication" value="FAILED" />
+              <entry key="PaymentServiceApplication" value="STOPPED" />
+              <entry key="StudentServiceApplication" value="STOPPED" />
               <entry key="TuitionServiceApplication" value="STOPPED" />
-              <entry key="UserServiceApplication" value="FAILED" />
+              <entry key="UserServiceApplication" value="STOPPED" />
             </map>
           </value>
         </entry>

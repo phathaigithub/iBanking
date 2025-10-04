@@ -101,15 +101,9 @@ class ApiClient {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return decoded;
     } else {
-      // Debug: Print the actual response
-      print('DEBUG: Response status: ${response.statusCode}');
-      print('DEBUG: Response body: ${response.body}');
-      print('DEBUG: Decoded: $decoded');
-
       // Try to parse as ApiError
       try {
         final error = ApiError.fromJson(decoded);
-        print('DEBUG: Successfully parsed ApiError: ${error.errorCode}');
 
         // Enhance error message based on route and error code
         final enhancedMessage = _getEnhancedErrorMessage(url, error.errorCode);
@@ -118,21 +112,14 @@ class ApiClient {
           errorCode: error.errorCode,
           message: enhancedMessage,
         );
-        print(
-          'DEBUG: Throwing enhanced ApiException with message: $enhancedMessage',
-        );
         throw ApiException(enhancedError);
       } catch (e) {
         // Check if this is our intended ApiException
         if (e is ApiException) {
-          print('DEBUG: Re-throwing ApiException: ${e.error.errorCode}');
           rethrow; // Re-throw our ApiException
         }
 
         // If parsing fails, create a generic error with enhanced message
-        print('DEBUG: Failed to parse ApiError: $e');
-        print('DEBUG: Decoded keys: ${decoded.keys.toList()}');
-
         final genericErrorCode = 'API_ERROR';
         final enhancedMessage = _getEnhancedErrorMessage(url, genericErrorCode);
         throw ApiException(

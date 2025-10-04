@@ -1,6 +1,9 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../../routes/student_routes.dart';
 import '../../config/api_routes.dart';
 import '../../models/student.dart';
+import '../../models/student_detail.dart';
 import '../../models/student_tuition.dart';
 import 'api_client.dart';
 
@@ -14,6 +17,50 @@ class StudentApiService {
     final response = await _apiClient.get(url: StudentRoutes.getAllStudents);
     final List<dynamic> studentsJson = response['data'] ?? [];
     return studentsJson.map((json) => Student.fromJson(json)).toList();
+  }
+
+  Future<List<StudentDetail>> getAllStudentDetails() async {
+    try {
+      // Try direct HTTP call first since API returns List directly
+      return await _getStudentsDirect();
+    } catch (e) {
+      // Fallback to ApiClient if direct call fails
+      try {
+        final response = await _apiClient.get(
+          url: '${ApiRoutes.studentServiceEndpoint}/students',
+        );
+
+        // ApiClient returns Map, extract data field
+        final List<dynamic> studentsJson =
+            response['data'] as List<dynamic>? ?? [];
+        return studentsJson
+            .map((json) => StudentDetail.fromJson(json as Map<String, dynamic>))
+            .toList();
+      } catch (e2) {
+        throw Exception('Failed to load students: $e');
+      }
+    }
+  }
+
+  Future<List<StudentDetail>> _getStudentsDirect() async {
+    try {
+      final response = await http.get(
+        Uri.parse('${ApiRoutes.studentServiceEndpoint}/students'),
+        headers: ApiRoutes.defaultHeaders,
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> studentsJson =
+            jsonDecode(response.body) as List<dynamic>;
+        return studentsJson
+            .map((json) => StudentDetail.fromJson(json as Map<String, dynamic>))
+            .toList();
+      } else {
+        throw Exception('HTTP ${response.statusCode}: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load students: $e');
+    }
   }
 
   Future<Student?> getStudentById(String studentId) async {
