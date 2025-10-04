@@ -51,24 +51,17 @@ class AuthWrapper extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Only watch authentication status to prevent rebuilding LoginView
-    // when loading or error state changes
-    final isAuthenticated = ref.watch(
-      authProvider.select((state) => state.isAuthenticated),
-    );
-    final isAdmin = ref.watch(authProvider.select((state) => state.isAdmin));
-    final isInitialLoading = ref.watch(
-      authProvider.select((state) => state.isLoading && state.token == null),
-    );
+    // Watch the entire auth state to ensure proper rebuilds
+    final authState = ref.watch(authProvider);
 
     // Show loading while initializing (first time only)
-    if (isInitialLoading) {
+    if (authState.isLoading && authState.token == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     // Show appropriate screen based on auth state
-    if (isAuthenticated) {
-      if (isAdmin) {
+    if (authState.isAuthenticated) {
+      if (authState.isAdmin) {
         return const AdminDashboardView();
       } else {
         return const UserDashboardView();

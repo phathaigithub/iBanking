@@ -27,8 +27,8 @@ class _LoginViewState extends ConsumerState<LoginView> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
 
-    // No need to listen for navigation - AuthWrapper handles it automatically
-    // This prevents flickering and state loss
+    // AuthWrapper will automatically handle navigation when auth state changes
+    // No need for manual listening or navigation here
 
     return Scaffold(
       backgroundColor: AppColors.background,
