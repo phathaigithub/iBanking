@@ -1,0 +1,15 @@
+meta {
+  name: Lịch sử thanh toán người dùng
+  type: http
+  seq: 17
+}
+
+get {
+  url: {{PrefixURL}}/payment-service/api/payments/8/verify-otp
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

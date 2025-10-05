@@ -2,16 +2,18 @@ meta {
   name: Tìm kiếm học phí theo kỳ hoặc theo mã ngành
   type: http
   seq: 15
+  seq: 14
 }
 
 get {
-  url: {{PrefixURL}}/tuition-service/api/tuition/search?code=CNTT
+  url: {{PrefixURL}}/tuition-service/api/tuition/search?code=CNTT&semester=32025
   body: none
   auth: inherit
 }
 
 params:query {
   code: CNTT
+  semester: 32025
 }
 
 settings {

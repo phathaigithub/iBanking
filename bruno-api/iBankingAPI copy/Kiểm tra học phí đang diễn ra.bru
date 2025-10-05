@@ -1,0 +1,15 @@
+meta {
+  name: Kiểm tra học phí đang diễn ra
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{PrefixURL}}/tuition-service/api/tuition/T001
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}
