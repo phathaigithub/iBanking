@@ -2,21 +2,13 @@ package com.example.payment_service.service.impl;
 
 import com.example.common_library.exception.ApiException;
 import com.example.common_library.exception.ErrorCode;
-import com.example.notification_service.dto.PaymentSuccessEmailRequest;
-import com.example.payment_service.dto.CreatePaymentRequest;
-import com.example.payment_service.dto.OtpEmailRequest;
-import com.example.payment_service.dto.TransactionHistoryDTO;
+import com.example.payment_service.dto.*;
 import com.example.payment_service.model.Payment;
 import com.example.payment_service.model.PaymentStatus;
 import com.example.payment_service.model.TransactionHistory;
 import com.example.payment_service.repository.PaymentRepository;
 import com.example.payment_service.repository.TransactionHistoryRepository;
 import com.example.payment_service.service.PaymentService;
-import com.example.student_service.dto.StudentDTO;
-import com.example.tuition_service.dto.StatusUpdateDTO;
-import com.example.tuition_service.dto.TuitionDTO;
-import com.example.user_service.dto.DeductBalanceRequest;
-import com.example.user_service.dto.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpEntity;
@@ -27,7 +19,6 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -37,6 +28,10 @@ public class PaymentServiceImp implements PaymentService {
 
     private static final String OTP_PREFIX = "payment:otp:";
     private static final int OTP_EXPIRE_MINUTES = 1;
+
+    // Thêm constants
+    private static final String OTP_ATTEMPT_PREFIX = "payment:otp:attempt:";
+    private static final int MAX_OTP_ATTEMPTS = 3;
 
     @Autowired
     private PaymentRepository paymentRepository;
@@ -54,7 +49,7 @@ public class PaymentServiceImp implements PaymentService {
     public Payment createPayment(CreatePaymentRequest request) {
         try {
             // Kiểm tra học phí tồn tại
-            TuitionDTO tuition = getTuition(request.getTuitionCode());
+            TuitionResponseDTO tuition = getTuition(request.getTuitionCode());
             if (tuition == null) {
                 throw new ApiException(ErrorCode.TUITION_NOT_FOUND);
             }
@@ -65,6 +60,31 @@ public class PaymentServiceImp implements PaymentService {
                     "Học phí này đã được thanh toán. Không thể tạo giao dịch mới.");
             }
             
+            // Kiểm tra có giao dịch đang chờ xác thực OTP cho học phí này không
+            List<Payment> pendingPayments = paymentRepository.findByTuitionCodeAndStatus(
+                request.getTuitionCode(), PaymentStatus.PENDING_OTP);
+
+            if (!pendingPayments.isEmpty()) {
+                Payment pendingPayment = pendingPayments.get(0);
+                
+                // Kiểm tra thời gian hết hạn
+                boolean isExpired = pendingPayment.getOtpExpiredAt() == null || 
+                                    pendingPayment.getOtpExpiredAt().isBefore(LocalDateTime.now());
+                                    
+                if (isExpired) {
+                    // Nếu đã hết hạn, xóa để tạo mới
+                    paymentRepository.delete(pendingPayment);
+                } else if (pendingPayment.getUserId().equals(request.getUserId())) {
+                    // Nếu là cùng người dùng và chưa hết hạn
+                    throw new ApiException(ErrorCode.PAYMENT_IN_PROGRESS, 
+                        "Bạn đã có phiên thanh toán đang chờ xác thực OTP cho học phí này. Vui lòng hoàn tất hoặc đợi hết hạn.");
+                } else {
+                    // Nếu là người dùng khác và chưa hết hạn
+                    throw new ApiException(ErrorCode.PAYMENT_IN_PROGRESS, 
+                        "Học phí này đang có người khác thanh toán. Vui lòng thử lại sau.");
+                }
+            }
+            
             // Kiểm tra số tiền phải >= học phí
             BigDecimal paymentAmount = BigDecimal.valueOf(request.getAmount());
             if (paymentAmount.compareTo(tuition.getAmount()) < 0) {
@@ -73,7 +93,7 @@ public class PaymentServiceImp implements PaymentService {
             }
             
             // Kiểm tra user tồn tại
-            UserResponse user = getUser(request.getUserId());
+            UserResponseDTO user = getUser(request.getUserId());
             if (user == null) {
                 throw new ApiException(ErrorCode.USER_NOT_FOUND);
             }
@@ -98,7 +118,6 @@ public class PaymentServiceImp implements PaymentService {
             payment.setAmount(request.getAmount());
             payment.setStatus(PaymentStatus.PENDING_OTP);
             payment.setOtpExpiredAt(LocalDateTime.now().plusMinutes(OTP_EXPIRE_MINUTES));
-            // Không lưu OTP vào database nữa
             payment = paymentRepository.save(payment);
             
             // Lưu OTP vào Redis với thời gian hết hạn
@@ -120,7 +139,7 @@ public class PaymentServiceImp implements PaymentService {
             return payment;
             
         } catch (ApiException e) {
-            // Với lỗi nghiệp vụ, lưu lịch sử và ném lại exception
+            // Xử lý lỗi nghiệp vụ
             Payment failedPayment = new Payment();
             failedPayment.setUserId(request.getUserId());
             failedPayment.setTuitionCode(request.getTuitionCode());
@@ -132,7 +151,7 @@ public class PaymentServiceImp implements PaymentService {
             throw e;
             
         } catch (Exception e) {
-            // Với lỗi hệ thống, lưu lịch sử và ném ApiException
+            // Xử lý lỗi hệ thống
             Payment failedPayment = new Payment();
             failedPayment.setUserId(request.getUserId());
             failedPayment.setTuitionCode(request.getTuitionCode());
@@ -154,11 +173,23 @@ public class PaymentServiceImp implements PaymentService {
             throw new ApiException(ErrorCode.PAYMENT_ALREADY_SUCCESS);
         }
         
+        // Kiểm tra trạng thái học phí lần nữa để tránh race condition
+        TuitionResponseDTO tuition = getTuition(payment.getTuitionCode());
+        if (tuition == null) {
+            throw new ApiException(ErrorCode.TUITION_NOT_FOUND);
+        }
+        if ("Đã thanh toán".equals(tuition.getStatus())) {
+            payment.setStatus(PaymentStatus.FAILED);
+            paymentRepository.save(payment);
+            saveTransactionHistory(payment, "FAILED", "Tuition already paid by another user");
+            throw new ApiException(ErrorCode.PAYMENT_ALREADY_COMPLETED, 
+                "Học phí này đã được thanh toán bởi người khác.");
+        }
+        
         // Kiểm tra OTP từ Redis
         String redisKey = OTP_PREFIX + paymentId;
         String storedOtp = redisTemplate.opsForValue().get(redisKey);
         
-        // Trường hợp OTP không tồn tại hoặc đã hết hạn
         if (storedOtp == null) {
             payment.setStatus(PaymentStatus.FAILED);
             paymentRepository.save(payment);
@@ -166,8 +197,20 @@ public class PaymentServiceImp implements PaymentService {
             throw new ApiException(ErrorCode.OTP_EXPIRED);
         }
         
-        // Trường hợp OTP không khớp
         if (!storedOtp.equals(otpCode)) {
+            // Tăng số lần thử OTP không hợp lệ
+            String attemptKey = OTP_ATTEMPT_PREFIX + paymentId;
+            Integer attemptCount = redisTemplate.opsForValue().increment(attemptKey, 1).intValue();
+            redisTemplate.expire(attemptKey, OTP_EXPIRE_MINUTES, TimeUnit.MINUTES);
+            
+            // Kiểm tra đã vượt quá số lần thử tối đa chưa
+            if (attemptCount >= MAX_OTP_ATTEMPTS) {
+                payment.setStatus(PaymentStatus.FAILED);
+                paymentRepository.save(payment);
+                saveTransactionHistory(payment, "FAILED", "Too many invalid OTP attempts");
+                throw new ApiException(ErrorCode.OTP_INVALID, "Bạn đã nhập sai OTP quá nhiều lần. Giao dịch bị từ chối.");
+            }
+            
             saveTransactionHistory(payment, "FAILED", "Invalid OTP provided");
             throw new ApiException(ErrorCode.OTP_INVALID);
         }
@@ -189,31 +232,15 @@ public class PaymentServiceImp implements PaymentService {
             // Lưu lịch sử giao dịch thành công
             saveTransactionHistory(payment, "SUCCESS", "Payment successful");
 
-            // Gửi email xác nhận thành công qua NotificationService
-            PaymentSuccessEmailRequest successRequest = new PaymentSuccessEmailRequest();
-            UserResponse user = getUser(payment.getUserId());
-            successRequest.setToEmail(user.getEmail());
-            successRequest.setUserName(user.getFullName());
-            successRequest.setTuitionCode(payment.getTuitionCode());
-            successRequest.setAmount(payment.getAmount());
-            successRequest.setSemester(getSemester(payment.getTuitionCode()));
-            restTemplate.postForObject("http://localhost:8086/notification-service/api/notification/payment-success", 
-                successRequest, Void.class);
-
             // Cập nhật trạng thái tuition sang "Đã thanh toán"
             updateTuitionStatus(payment.getTuitionCode(), "Đã thanh toán");
 
             return true;
             
         } catch (Exception e) {
-            // Xử lý lỗi trong quá trình thanh toán
             payment.setStatus(PaymentStatus.FAILED);
             paymentRepository.save(payment);
-            
-            // Xóa OTP từ Redis khi thất bại
             redisTemplate.delete(redisKey);
-            
-            // Lưu lịch sử thất bại
             saveTransactionHistory(payment, "FAILED", "Payment verification failed: " + e.getMessage());
             
             if (e instanceof ApiException) {
@@ -224,9 +251,8 @@ public class PaymentServiceImp implements PaymentService {
         }
     }
 
-    // Thêm phương thức mới
     public Payment verifyOtpAndReturn(Long paymentId, String otpCode) {
-        verifyOtp(paymentId, otpCode); // vẫn giữ logic cũ
+        verifyOtp(paymentId, otpCode);
         return paymentRepository.findById(paymentId)
             .orElseThrow(() -> new ApiException(ErrorCode.PAYMENT_NOT_FOUND));
     }
@@ -245,9 +271,8 @@ public class PaymentServiceImp implements PaymentService {
             dto.setMessage(h.getMessage());
             dto.setCreatedAt(h.getCreatedAt());
             
-            // Lấy thông tin học phí (chỉ khi tuitionCode không null)
             if (h.getTuitionCode() != null && !h.getTuitionCode().isEmpty()) {
-                TuitionDTO tuition = getTuition(h.getTuitionCode());
+                TuitionResponseDTO tuition = getTuition(h.getTuitionCode());
                 if (tuition != null) {
                     dto.setTuitionAmount(tuition.getAmount());
                     dto.setSemester(tuition.getSemester());
@@ -258,34 +283,27 @@ public class PaymentServiceImp implements PaymentService {
         return result;
     }
 
-    @Override
-    public List<TuitionDTO> getAllTuition() {
-        String url = "http://localhost:8086/tuition-service/api/tuition/all";
-        TuitionDTO[] tuitions = restTemplate.getForObject(url, TuitionDTO[].class);
-        return tuitions != null ? Arrays.asList(tuitions) : new ArrayList<>();
-    }
-
-    // Helper methods
-    private TuitionDTO getTuition(String tuitionCode) {
+    // Helper methods với DTOs mới
+    private TuitionResponseDTO getTuition(String tuitionCode) {
         String url = "http://localhost:8086/tuition-service/api/tuition/" + tuitionCode;
         try {
-            return restTemplate.getForObject(url, TuitionDTO.class);
+            return restTemplate.getForObject(url, TuitionResponseDTO.class);
         } catch (Exception e) {
             return null;
         }
     }
 
-    private UserResponse getUser(Long userId) {
+    private UserResponseDTO getUser(Long userId) {
         String url = "http://localhost:8086/user-service/api/users/" + userId;
         try {
-            return restTemplate.getForObject(url, UserResponse.class);
+            return restTemplate.getForObject(url, UserResponseDTO.class);
         } catch (Exception e) {
             return null;
         }
     }
 
     private String getSemester(String tuitionCode) {
-        TuitionDTO tuition = getTuition(tuitionCode);
+        TuitionResponseDTO tuition = getTuition(tuitionCode);
         return tuition != null ? tuition.getSemester() : "";
     }
 
@@ -305,13 +323,15 @@ public class PaymentServiceImp implements PaymentService {
 
     private void updateTuitionStatus(String tuitionCode, String newStatus) {
         String url = "http://localhost:8086/tuition-service/api/tuition/" + tuitionCode + "/status";
-        StatusUpdateDTO statusUpdateDTO = new StatusUpdateDTO();
+        StatusUpdateRequestDTO statusUpdateDTO = new StatusUpdateRequestDTO();
         statusUpdateDTO.setStatus(newStatus);
         try {
-            HttpEntity<StatusUpdateDTO> requestEntity = new HttpEntity<>(statusUpdateDTO);
+            HttpEntity<StatusUpdateRequestDTO> requestEntity = new HttpEntity<>(statusUpdateDTO);
             restTemplate.exchange(url, HttpMethod.PATCH, requestEntity, Void.class);
         } catch (Exception e) {
             System.out.println("Error updating tuition status: " + e.getMessage());
         }
     }
+
+    
 }

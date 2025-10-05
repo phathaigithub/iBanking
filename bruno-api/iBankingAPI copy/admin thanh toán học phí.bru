@@ -1,10 +1,10 @@
 meta {
-  name: Thanh toan hoc phi tu StudentCode
+  name: admin thanh toán học phí
   type: http
-  seq: 6
+  seq: 7
 }
 
-post {
+get {
   url: {{PrefixURL}}/payment-service/api/payments
   body: json
   auth: inherit
@@ -12,7 +12,7 @@ post {
 
 body:json {
   {
-      "userId": 2,
+      "userId": 1,
       "tuitionCode": "2202552200002",
       "amount":50000
   }

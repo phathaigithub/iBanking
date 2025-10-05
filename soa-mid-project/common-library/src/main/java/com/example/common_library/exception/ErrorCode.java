@@ -39,7 +39,10 @@ public enum ErrorCode {
     PAYMENT_ALREADY_COMPLETED(409, "Học phí đã được thanh toán"),
 
     // Thêm mã lỗi mới
-    PAYMENT_PROCESSING_ERROR(500, "Error during payment processing");
+    PAYMENT_PROCESSING_ERROR(500, "Error during payment processing"),
+    PAYMENT_IN_PROGRESS(409, "Học phí đang được xử lý thanh toán"),
+
+    OTP_MAX_ATTEMPTS_EXCEEDED(401, "Nhập sai OTP quá số lần cho phép");
 
     private final int status;
     private final String message;

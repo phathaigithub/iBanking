@@ -50,9 +50,4 @@ public class PaymentController {
         return ResponseEntity.ok(history);
     }
 
-    @GetMapping("/tuition/all")
-    public ResponseEntity<List<TuitionDTO>> getAllTuition() {
-        List<TuitionDTO> tuitionList = paymentService.getAllTuition();
-        return ResponseEntity.ok(tuitionList);
-    }
 }
