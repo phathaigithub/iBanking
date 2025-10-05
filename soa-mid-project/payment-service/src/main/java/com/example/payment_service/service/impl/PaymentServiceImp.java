@@ -1,8 +1,11 @@
 package com.example.payment_service.service.impl;
 
+import com.example.common_library.dto.*;
 import com.example.common_library.exception.ApiException;
 import com.example.common_library.exception.ErrorCode;
-import com.example.notification_service.dto.PaymentSuccessEmailRequest;
+import com.example.payment_service.client.NotificationServiceClient;
+import com.example.payment_service.client.TuitionServiceClient;
+import com.example.payment_service.client.UserServiceClient;
 import com.example.payment_service.dto.CreatePaymentRequest;
 import com.example.payment_service.dto.OtpEmailRequest;
 import com.example.payment_service.dto.TransactionHistoryDTO;
@@ -12,22 +15,13 @@ import com.example.payment_service.model.TransactionHistory;
 import com.example.payment_service.repository.PaymentRepository;
 import com.example.payment_service.repository.TransactionHistoryRepository;
 import com.example.payment_service.service.PaymentService;
-import com.example.student_service.dto.StudentDTO;
-import com.example.tuition_service.dto.StatusUpdateDTO;
-import com.example.tuition_service.dto.TuitionDTO;
-import com.example.user_service.dto.DeductBalanceRequest;
-import com.example.user_service.dto.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -42,7 +36,13 @@ public class PaymentServiceImp implements PaymentService {
     private PaymentRepository paymentRepository;
 
     @Autowired
-    private RestTemplate restTemplate;
+    private UserServiceClient userServiceClient;
+    
+    @Autowired
+    private TuitionServiceClient tuitionServiceClient;
+    
+    @Autowired
+    private NotificationServiceClient notificationServiceClient;
 
     @Autowired
     private TransactionHistoryRepository transactionHistoryRepository;
@@ -111,8 +111,7 @@ public class PaymentServiceImp implements PaymentService {
             otpRequest.setToEmail(user.getEmail());
             otpRequest.setOtpCode(otp);
             otpRequest.setExpireMinutes(OTP_EXPIRE_MINUTES);
-            restTemplate.postForObject("http://localhost:8086/notification-service/api/notification/send-otp", 
-                otpRequest, Void.class);
+            notificationServiceClient.sendOtp(otpRequest);
 
             // Lưu lịch sử giao dịch khi tạo phiên thanh toán - PENDING
             saveTransactionHistory(payment, "PENDING", "Payment session created, waiting for OTP verification");
@@ -176,8 +175,7 @@ public class PaymentServiceImp implements PaymentService {
             // Trừ số dư user qua UserService
             DeductBalanceRequest deductRequest = new DeductBalanceRequest();
             deductRequest.setAmount(BigDecimal.valueOf(payment.getAmount()));
-            restTemplate.postForObject("http://localhost:8086/user-service/api/users/" + 
-                payment.getUserId() + "/deduct-balance", deductRequest, Void.class);
+            userServiceClient.deductBalance(payment.getUserId(), deductRequest);
                 
             // Cập nhật trạng thái payment thành công
             payment.setStatus(PaymentStatus.SUCCESS);
@@ -195,10 +193,9 @@ public class PaymentServiceImp implements PaymentService {
             successRequest.setToEmail(user.getEmail());
             successRequest.setUserName(user.getFullName());
             successRequest.setTuitionCode(payment.getTuitionCode());
-            successRequest.setAmount(payment.getAmount());
+            successRequest.setAmount(BigDecimal.valueOf(payment.getAmount()));
             successRequest.setSemester(getSemester(payment.getTuitionCode()));
-            restTemplate.postForObject("http://localhost:8086/notification-service/api/notification/payment-success", 
-                successRequest, Void.class);
+            notificationServiceClient.sendPaymentSuccess(successRequest);
 
             // Cập nhật trạng thái tuition sang "Đã thanh toán"
             updateTuitionStatus(payment.getTuitionCode(), "Đã thanh toán");
@@ -260,25 +257,21 @@ public class PaymentServiceImp implements PaymentService {
 
     @Override
     public List<TuitionDTO> getAllTuition() {
-        String url = "http://localhost:8086/tuition-service/api/tuition/all";
-        TuitionDTO[] tuitions = restTemplate.getForObject(url, TuitionDTO[].class);
-        return tuitions != null ? Arrays.asList(tuitions) : new ArrayList<>();
+        return tuitionServiceClient.getAllTuition();
     }
 
     // Helper methods
     private TuitionDTO getTuition(String tuitionCode) {
-        String url = "http://localhost:8086/tuition-service/api/tuition/" + tuitionCode;
         try {
-            return restTemplate.getForObject(url, TuitionDTO.class);
+            return tuitionServiceClient.getTuition(tuitionCode);
         } catch (Exception e) {
             return null;
         }
     }
 
     private UserResponse getUser(Long userId) {
-        String url = "http://localhost:8086/user-service/api/users/" + userId;
         try {
-            return restTemplate.getForObject(url, UserResponse.class);
+            return userServiceClient.getUser(userId);
         } catch (Exception e) {
             return null;
         }
@@ -304,12 +297,10 @@ public class PaymentServiceImp implements PaymentService {
     }
 
     private void updateTuitionStatus(String tuitionCode, String newStatus) {
-        String url = "http://localhost:8086/tuition-service/api/tuition/" + tuitionCode + "/status";
         StatusUpdateDTO statusUpdateDTO = new StatusUpdateDTO();
         statusUpdateDTO.setStatus(newStatus);
         try {
-            HttpEntity<StatusUpdateDTO> requestEntity = new HttpEntity<>(statusUpdateDTO);
-            restTemplate.exchange(url, HttpMethod.PATCH, requestEntity, Void.class);
+            tuitionServiceClient.updateTuitionStatus(tuitionCode, statusUpdateDTO);
         } catch (Exception e) {
             System.out.println("Error updating tuition status: " + e.getMessage());
         }
