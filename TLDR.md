@@ -35,8 +35,14 @@ notepad .env
 
 ### Hàng ngày
 ```powershell
-# Start
+# Start toàn bộ hệ thống
 docker-compose up -d
+
+# Chỉ chạy frontend
+docker-compose up -d app-fe
+
+# Chỉ chạy backend (không frontend)
+docker-compose up -d mysql redis eureka-server api-gateway user-service student-service tuition-service payment-service notification-service
 
 # Stop
 docker-compose stop
@@ -109,14 +115,6 @@ docker-compose up -d
 | Eureka | http://localhost:8761 |
 | API Gateway | http://localhost:8086 |
 | MySQL | localhost:3307 (root/root) |
-
----
-
-## Tài liệu đầy đủ
-
-- 📖 [START_HERE.md](./START_HERE.md) - Complete guide
-- 📖 [DOCKER_GUIDE.md](./DOCKER_GUIDE.md) - Docker details
-- 📖 [QUICK_REFERENCE.md](./QUICK_REFERENCE.md) - Command reference
 
 ---
 

@@ -107,27 +107,24 @@ iBanking là hệ thống quản lý và thanh toán học phí trực tuyến, 
 - **Disk:** 10GB trống
 - **OS:** Windows 10+, macOS 10.14+, Ubuntu 20.04+
 
-### ⚡ Cài đặt siêu nhanh
+### ⚡ Khởi động hệ thống
 
-#### Windows (Batch):
-```batch
-REM 1. Kiểm tra hệ thống
-scripts\preflight-check.bat
-
-REM 2. Khởi động
-scripts\quick-start.bat
+#### Chạy toàn bộ hệ thống:
+```bash
+docker-compose up -d
 ```
 
-#### Windows/Linux/Mac (PowerShell):
-```powershell
-# 1. Kiểm tra hệ thống
-.\scripts\preflight-check.ps1
-
-# 2. Khởi động
-.\scripts\quick-start.ps1
+#### Chỉ chạy frontend:
+```bash
+docker-compose up -d app-fe
 ```
 
-#### Manual:
+#### Chỉ chạy backend (không frontend):
+```bash
+docker-compose up -d mysql redis eureka-server api-gateway user-service student-service tuition-service payment-service notification-service
+```
+
+#### Manual setup (nâng cao):
 ```bash
 # 1. Tạo file cấu hình
 cp .env.example .env
@@ -178,20 +175,20 @@ Sau khi khởi động thành công (1-2 phút):
 
 ```
 ┌─────────────────────────────────────────────────┐
-│                 Client Browser                   │
-│              (Frontend - Flutter Web)            │
+│                 Client Browser                  │
+│              (Frontend - Flutter Web)           │
 └──────────────────────┬──────────────────────────┘
                        │ HTTP/HTTPS
                        ▼
 ┌─────────────────────────────────────────────────┐
-│            API Gateway (Port 8086)               │
+│            API Gateway (Port 8086)              │
 │         Spring Cloud Gateway + Load Balancer    │
 └──────────────────────┬──────────────────────────┘
                        │
                        ▼
 ┌─────────────────────────────────────────────────┐
-│         Eureka Server (Port 8761)                │
-│              Service Discovery                   │
+│         Eureka Server (Port 8761)               │
+│              Service Discovery                  │
 └──────────────────────┬──────────────────────────┘
                        │
         ┌──────────────┼──────────────┬──────────┐
@@ -208,16 +205,16 @@ Sau khi khởi động thành công (1-2 phút):
 ┌──────────────┐ ┌──────────┐ ┌─────────────────────┐
 │   user_db    │ │ student  │ │    tuition_db       │
 │   (MySQL)    │ │   _db    │ │     (MySQL)         │
-└──────────────┘ └──────────┘ └──────┬──────────────┘
+└──────────────┘ └──────────┘ └───────┬─────────────┘
                                       │
                               ┌───────┴────────┐
                               ▼                ▼
-                        ┌──────────┐    ┌──────────┐
+                        ┌──────────┐    ┌────────────┐
                         │  Redis   │    │Notification│
                         │  Cache   │    │  Service   │
                         │  (6379)  │    │   (8085)   │
                         └──────────┘    │  - Email   │
-                                        └──────────┘
+                                        └────────────┘
 ```
 
 ### Microservices
@@ -473,20 +470,6 @@ docker-compose build
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 👥 Team
-
-### Developers
-- **Backend Lead:** [Your Name]
-- **Frontend Lead:** [Your Name]
-- **DevOps:** [Your Name]
-
-### Contact
-- **Email:** contact@ibanking.com
-- **GitHub:** [github.com/your-org/ibanking](https://github.com/your-org/ibanking)
-- **Issues:** [GitHub Issues](https://github.com/your-org/ibanking/issues)
 
 ---
 
