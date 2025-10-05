@@ -1,5 +1,6 @@
 package com.example.payment_service.service;
 
+import com.example.common_library.dto.TuitionDTO;
 import com.example.payment_service.dto.CreatePaymentRequest;
 import com.example.payment_service.dto.TransactionHistoryDTO;
 import com.example.payment_service.model.Payment;

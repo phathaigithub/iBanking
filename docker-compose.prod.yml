@@ -1,0 +1,54 @@
+version: '3.8'
+
+# Production override file
+# Copy this file to docker-compose.override.yml for production settings
+
+services:
+  mysql:
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - /var/lib/mysql-data:/var/lib/mysql  # Use absolute path in production
+    restart: always
+
+  redis:
+    restart: always
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+
+  eureka-server:
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    restart: always
+
+  api-gateway:
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    restart: always
+
+  user-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    restart: always
+
+  student-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    restart: always
+
+  tuition-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    restart: always
+
+  payment-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    restart: always
+
+  notification-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    restart: always
+
+  app-fe:
+    restart: always

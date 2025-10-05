@@ -1,0 +1,238 @@
+version: '3.8'
+
+services:
+  # ============================================
+  # DATABASE SERVICES
+  # ============================================
+  
+  mysql:
+    image: mysql:8.0
+    container_name: ibanking-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_ROOT_HOST: '%'
+    ports:
+      - "${MYSQL_PORT:-3307}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - soa-mid-tui-ibank
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$${MYSQL_ROOT_PASSWORD:-root}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: ibanking-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    networks:
+      - soa-mid-tui-ibank
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ============================================
+  # MICROSERVICES - INFRASTRUCTURE
+  # ============================================
+
+  eureka-server:
+    build:
+      context: ./soa-mid-project
+      dockerfile: eureka-server/Dockerfile
+    container_name: ibanking-eureka
+    ports:
+      - "8761:8761"
+    networks:
+      - soa-mid-tui-ibank
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8761/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+
+  api-gateway:
+    build:
+      context: ./soa-mid-project
+      dockerfile: api-gateway/Dockerfile
+    container_name: ibanking-gateway
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_URL:-http://eureka-server:8761/eureka/}
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "false"
+      EUREKA_INSTANCE_HOSTNAME: api-gateway
+    ports:
+      - "8086:8086"
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - soa-mid-tui-ibank
+    restart: unless-stopped
+
+  # ============================================
+  # MICROSERVICES - BUSINESS SERVICES
+  # ============================================
+
+  user-service:
+    build:
+      context: ./soa-mid-project
+      dockerfile: user-service/Dockerfile
+    container_name: ibanking-user-service
+    environment:
+      SPRING_DATASOURCE_URL: ${USER_DB_URL:-jdbc:mysql://mysql:3306/user_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-root}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-root}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_URL:-http://eureka-server:8761/eureka/}
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "false"
+      EUREKA_INSTANCE_HOSTNAME: user-service
+      JWT_SECRET: ${JWT_SECRET:-mysupersecretkeymysupersecretkeymysupersecretkeymysupersecretkey123456}
+    ports:
+      - "8081:8081"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - soa-mid-tui-ibank
+    restart: unless-stopped
+
+  student-service:
+    build:
+      context: ./soa-mid-project
+      dockerfile: student-service/Dockerfile
+    container_name: ibanking-student-service
+    environment:
+      SPRING_DATASOURCE_URL: ${STUDENT_DB_URL:-jdbc:mysql://mysql:3306/student_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-root}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-root}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_URL:-http://eureka-server:8761/eureka/}
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "false"
+      EUREKA_INSTANCE_HOSTNAME: student-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - soa-mid-tui-ibank
+    restart: unless-stopped
+
+  tuition-service:
+    build:
+      context: ./soa-mid-project
+      dockerfile: tuition-service/Dockerfile
+    container_name: ibanking-tuition-service
+    environment:
+      SPRING_DATASOURCE_URL: ${TUITION_DB_URL:-jdbc:mysql://mysql:3306/tuition_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-root}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-root}
+      SPRING_REDIS_HOST: ${REDIS_HOST:-redis}
+      SPRING_REDIS_PORT: ${REDIS_PORT:-6379}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_URL:-http://eureka-server:8761/eureka/}
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "false"
+      EUREKA_INSTANCE_HOSTNAME: tuition-service
+      STUDENT_SERVICE_URL: ${STUDENT_SERVICE_URL:-http://student-service:8082}
+    ports:
+      - "8083:8083"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      student-service:
+        condition: service_started
+    networks:
+      - soa-mid-tui-ibank
+    restart: unless-stopped
+
+  payment-service:
+    build:
+      context: ./soa-mid-project
+      dockerfile: payment-service/Dockerfile
+    container_name: ibanking-payment-service
+    environment:
+      SPRING_DATASOURCE_URL: ${TUITION_DB_URL:-jdbc:mysql://mysql:3306/tuition_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-root}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-root}
+      SPRING_REDIS_HOST: ${REDIS_HOST:-redis}
+      SPRING_REDIS_PORT: ${REDIS_PORT:-6379}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_URL:-http://eureka-server:8761/eureka/}
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "false"
+      EUREKA_INSTANCE_HOSTNAME: payment-service
+    ports:
+      - "8084:8084"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - soa-mid-tui-ibank
+    restart: unless-stopped
+
+  notification-service:
+    build:
+      context: ./soa-mid-project
+      dockerfile: notification-service/Dockerfile
+    container_name: ibanking-notification-service
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_URL:-http://eureka-server:8761/eureka/}
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "false"
+      EUREKA_INSTANCE_HOSTNAME: notification-service
+      SPRING_MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
+      SPRING_MAIL_PORT: ${MAIL_PORT:-587}
+      SPRING_MAIL_USERNAME: ${MAIL_USERNAME}
+      SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD}
+    ports:
+      - "8085:8085"
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - soa-mid-tui-ibank
+    restart: unless-stopped
+
+  # ============================================
+  # FRONTEND
+  # ============================================
+
+  app-fe:
+    build:
+      context: ./app-fe
+      dockerfile: Dockerfile
+    container_name: ibanking-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - soa-mid-tui-ibank
+    restart: unless-stopped
+
+# ============================================
+# NETWORKS & VOLUMES
+# ============================================
+
+networks:
+  soa-mid-tui-ibank:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local
