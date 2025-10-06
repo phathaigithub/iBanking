@@ -13,9 +13,10 @@ public interface TuitionServiceClient {
     @GetMapping("/api/tuition/{tuitionCode}")
     TuitionDTO getTuition(@PathVariable("tuitionCode") String tuitionCode);
     
-    @GetMapping("/api/tuition/all")
+    @GetMapping("/api/tuition")
     List<TuitionDTO> getAllTuition();
     
-    @PatchMapping("/api/tuition/{tuitionCode}/status")
-    void updateTuitionStatus(@PathVariable("tuitionCode") String tuitionCode, @RequestBody StatusUpdateDTO statusUpdate);
+    // Thay PATCH bằng PUT để tránh vấn đề với Feign
+    @PutMapping("/api/tuition/{tuitionCode}/status")
+    TuitionDTO updateTuitionStatus(@PathVariable("tuitionCode") String tuitionCode, @RequestBody StatusUpdateDTO statusUpdate);
 }

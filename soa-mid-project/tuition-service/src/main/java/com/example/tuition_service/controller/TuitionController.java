@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -39,6 +40,14 @@ public class TuitionController {
     
     @PatchMapping("/{tuitionId}/status")
     public ResponseEntity<TuitionDTO> updateTuitionStatus(
+            @PathVariable("tuitionId") String tuitionId,
+            @RequestBody StatusUpdateDTO statusUpdateDTO) {
+        TuitionDTO updatedTuition = tuitionService.updateTuitionStatus(tuitionId, statusUpdateDTO);
+        return ResponseEntity.ok(updatedTuition);
+    }
+    
+    @PutMapping("/{tuitionId}/status")
+    public ResponseEntity<TuitionDTO> updateTuitionStatusPut(
             @PathVariable("tuitionId") String tuitionId,
             @RequestBody StatusUpdateDTO statusUpdateDTO) {
         TuitionDTO updatedTuition = tuitionService.updateTuitionStatus(tuitionId, statusUpdateDTO);
