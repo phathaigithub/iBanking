@@ -222,7 +222,7 @@ public class TuitionServiceImpl implements TuitionService {
             OtpEmailRequest request = new OtpEmailRequest();
             request.setToEmail(student.getEmail());
             request.setOtpCode(otpCode);
-            request.setExpireMinutes(5);
+            request.setExpireMinutes(1);
             request.setUserName(student.getName());
             notificationServiceClient.sendInquiryOtp(request);
         } catch (Exception e) {

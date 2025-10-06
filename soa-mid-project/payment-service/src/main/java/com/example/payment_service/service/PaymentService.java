@@ -12,4 +12,6 @@ public interface PaymentService {
     boolean verifyOtp(Long paymentId, String otpCode);
     Payment verifyOtpAndReturn(Long paymentId, String otpCode);
     List<TransactionHistoryDTO> getTransactionHistoryWithTuition(Long userId);
+
+    List<TuitionDTO> getAllTuition();
 }

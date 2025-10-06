@@ -1,6 +1,7 @@
 package com.example.payment_service.service.impl;
 
 import com.example.common_library.dto.*;
+import com.example.common_library.dto.DeductBalanceRequest;
 import com.example.common_library.exception.ApiException;
 import com.example.common_library.exception.ErrorCode;
 import com.example.payment_service.client.NotificationServiceClient;
@@ -59,7 +60,7 @@ public class PaymentServiceImp implements PaymentService {
     public Payment createPayment(CreatePaymentRequest request) {
         try {
             // Kiểm tra học phí tồn tại
-            TuitionResponseDTO tuition = getTuition(request.getTuitionCode());
+            TuitionDTO tuition = getTuition(request.getTuitionCode());
             if (tuition == null) {
                 throw new ApiException(ErrorCode.TUITION_NOT_FOUND);
             }
@@ -103,7 +104,7 @@ public class PaymentServiceImp implements PaymentService {
             }
             
             // Kiểm tra user tồn tại
-            UserResponseDTO user = getUser(request.getUserId());
+            UserResponse user = getUser(request.getUserId());
             if (user == null) {
                 throw new ApiException(ErrorCode.USER_NOT_FOUND);
             }
@@ -183,7 +184,7 @@ public class PaymentServiceImp implements PaymentService {
         }
         
         // Kiểm tra trạng thái học phí lần nữa để tránh race condition
-        TuitionResponseDTO tuition = getTuition(payment.getTuitionCode());
+        TuitionDTO tuition = getTuition(payment.getTuitionCode());
         if (tuition == null) {
             throw new ApiException(ErrorCode.TUITION_NOT_FOUND);
         }
@@ -290,7 +291,7 @@ public class PaymentServiceImp implements PaymentService {
             dto.setCreatedAt(h.getCreatedAt());
             
             if (h.getTuitionCode() != null && !h.getTuitionCode().isEmpty()) {
-                TuitionResponseDTO tuition = getTuition(h.getTuitionCode());
+                TuitionDTO tuition = getTuition(h.getTuitionCode());
                 if (tuition != null) {
                     dto.setTuitionAmount(tuition.getAmount());
                     dto.setSemester(tuition.getSemester());
@@ -324,7 +325,7 @@ public class PaymentServiceImp implements PaymentService {
     }
 
     private String getSemester(String tuitionCode) {
-        TuitionResponseDTO tuition = getTuition(tuitionCode);
+        TuitionDTO tuition = getTuition(tuitionCode);
         return tuition != null ? tuition.getSemester() : "";
     }
 
