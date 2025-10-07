@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import '../models/student_detail.dart';
 import '../models/major.dart';
 import '../utils/app_theme.dart';
@@ -420,16 +421,16 @@ class _StudentTableState extends ConsumerState<StudentTable> {
       child: Row(
         children: [
           IconButton(
-            onPressed: () => _makePhoneCall(student.phone),
+            onPressed: () => _copyPhoneNumber(student.phone),
             icon: const Icon(Icons.phone, color: Colors.green),
-            tooltip: 'Gọi điện',
+            tooltip: 'Sao chép số điện thoại',
             constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
             padding: EdgeInsets.zero,
           ),
           IconButton(
-            onPressed: () => _sendEmail(student.email),
+            onPressed: () => _copyEmailAddress(student.email),
             icon: const Icon(Icons.email, color: Colors.blue),
-            tooltip: 'Gửi email',
+            tooltip: 'Sao chép email',
             constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
             padding: EdgeInsets.zero,
           ),
@@ -460,21 +461,23 @@ class _StudentTableState extends ConsumerState<StudentTable> {
     );
   }
 
-  void _makePhoneCall(String phoneNumber) {
-    // Implementation for phone call
+  Future<void> _copyPhoneNumber(String phoneNumber) async {
+    await Clipboard.setData(ClipboardData(text: phoneNumber));
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Gọi số: $phoneNumber'),
+        content: Text('Đã sao chép số điện thoại: $phoneNumber'),
         duration: const Duration(seconds: 2),
       ),
     );
   }
 
-  void _sendEmail(String email) {
-    // Implementation for email
+  Future<void> _copyEmailAddress(String email) async {
+    await Clipboard.setData(ClipboardData(text: email));
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Gửi email đến: $email'),
+        content: Text('Đã sao chép email: $email'),
         duration: const Duration(seconds: 2),
       ),
     );

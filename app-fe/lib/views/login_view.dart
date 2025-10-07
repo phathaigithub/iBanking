@@ -224,6 +224,7 @@ class _LoginViewState extends ConsumerState<LoginView>
                                           }
                                           return null;
                                         },
+                                        textInputAction: TextInputAction.next,
                                       ),
                                       const SizedBox(height: 20),
 
@@ -307,6 +308,7 @@ class _LoginViewState extends ConsumerState<LoginView>
                                           }
                                           return null;
                                         },
+                                        textInputAction: TextInputAction.done,
                                       ),
                                       const SizedBox(height: 32),
 
@@ -447,63 +449,68 @@ class _LoginViewState extends ConsumerState<LoginView>
             const Text('Cấu hình API'),
           ],
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'API Gateway Endpoint',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey[700],
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: controller,
-              decoration: InputDecoration(
-                hintText: 'http://localhost:8086',
-                prefixIcon: Icon(Icons.link, color: AppColors.primary),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: AppColors.primary, width: 2),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'API Gateway Endpoint',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[700],
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.blue[50],
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.blue[200]!),
+              const SizedBox(height: 12),
+              TextField(
+                controller: controller,
+                decoration: InputDecoration(
+                  hintText: 'http://localhost:8086',
+                  prefixIcon: Icon(Icons.link, color: AppColors.primary),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: AppColors.primary, width: 2),
+                  ),
+                ),
               ),
-              child: Row(
-                children: [
-                  Icon(Icons.info_outline, color: Colors.blue[700], size: 18),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Endpoint mặc định:\n${ApiRoutes.defaultGatewayEndpoint}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.blue[700],
-                        height: 1.4,
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue[50],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.blue[200]!),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, color: Colors.blue[700], size: 18),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Endpoint mặc định:\n${ApiRoutes.defaultGatewayEndpoint}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.blue[700],
+                          height: 1.4,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
+            onPressed: () {
+              FocusManager.instance.primaryFocus?.unfocus();
+              Navigator.of(context).pop(false);
+            },
             child: const Text('Hủy'),
           ),
           OutlinedButton.icon(
@@ -523,7 +530,10 @@ class _LoginViewState extends ConsumerState<LoginView>
             label: const Text('Mặc định'),
           ),
           ElevatedButton.icon(
-            onPressed: () => Navigator.of(context).pop(true),
+            onPressed: () {
+              FocusManager.instance.primaryFocus?.unfocus();
+              Navigator.of(context).pop(true);
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
@@ -551,7 +561,7 @@ class _LoginViewState extends ConsumerState<LoginView>
       }
     }
 
-    controller.dispose();
+    // Do not dispose the local controller here to avoid lifecycle races with dialog animations
   }
 
   Future<void> _login() async {
