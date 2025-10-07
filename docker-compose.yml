@@ -165,7 +165,7 @@ services:
       dockerfile: payment-service/Dockerfile
     container_name: ibanking-payment-service
     environment:
-      SPRING_DATASOURCE_URL: ${TUITION_DB_URL:-jdbc:mysql://mysql:3306/tuition_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+      SPRING_DATASOURCE_URL: ${PAYMENT_DB_URL:-jdbc:mysql://mysql:3306/tuition_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
       SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-root}
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-root}
       SPRING_REDIS_HOST: ${REDIS_HOST:-redis}
