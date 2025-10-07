@@ -415,7 +415,7 @@ class _CreateTuitionPeriodViewState
   }
 
   Future<void> _selectDate(CreateTuitionPeriodNotifier notifier) async {
-    final minDate = DateTime.now().add(const Duration(days: 7));
+    final minDate = DateTime.now().add(const Duration(days: 8));
     final selectedDate = await showDatePicker(
       context: context,
       initialDate: minDate,

@@ -4,10 +4,12 @@ import '../providers/auth_provider.dart';
 import '../providers/user_payment_provider.dart';
 import '../utils/app_theme.dart';
 import '../utils/helpers.dart';
-import '../utils/payment_config.dart';
+import '../config/time_config.dart';
 import 'otp_verification_page.dart';
 import 'payment_success_page.dart';
 import 'payment_failed_page.dart';
+import 'terms_and_conditions_view.dart';
+import 'dart:async';
 
 class PaymentView extends ConsumerStatefulWidget {
   const PaymentView({super.key});
@@ -140,7 +142,7 @@ class _PaymentViewState extends ConsumerState<PaymentView> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Nhập mã học phí để thanh toán. Thông tin học phí sẽ hiển thị trong ${PaymentConfig.tuitionCardDisplayDuration} giây sau khi tìm thấy.',
+                    'Nhập mã học phí để thanh toán. Thông tin học phí sẽ hiển thị trong ${TimeConfig.tuitionCardDisplayDuration} giây sau khi tìm thấy.',
                     style: TextStyle(fontSize: 14, color: Colors.blue[700]),
                   ),
                 ),
@@ -282,14 +284,14 @@ class _PaymentViewState extends ConsumerState<PaymentView> {
                         decoration: BoxDecoration(
                           color:
                               paymentState.remainingSeconds >
-                                  PaymentConfig.timeRunningOutThreshold
+                                  TimeConfig.timeRunningOutThreshold
                               ? Colors.green[50]
                               : Colors.orange[50],
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color:
                                 paymentState.remainingSeconds >
-                                    PaymentConfig.timeRunningOutThreshold
+                                    TimeConfig.timeRunningOutThreshold
                                 ? Colors.green[200]!
                                 : Colors.orange[200]!,
                           ),
@@ -302,7 +304,7 @@ class _PaymentViewState extends ConsumerState<PaymentView> {
                               size: 16,
                               color:
                                   paymentState.remainingSeconds >
-                                      PaymentConfig.timeRunningOutThreshold
+                                      TimeConfig.timeRunningOutThreshold
                                   ? Colors.green[700]
                                   : Colors.orange[700],
                             ),
@@ -312,7 +314,7 @@ class _PaymentViewState extends ConsumerState<PaymentView> {
                               style: TextStyle(
                                 color:
                                     paymentState.remainingSeconds >
-                                        PaymentConfig.timeRunningOutThreshold
+                                        TimeConfig.timeRunningOutThreshold
                                     ? Colors.green[700]
                                     : Colors.orange[700],
                                 fontWeight: FontWeight.w600,
@@ -402,152 +404,266 @@ class _PaymentViewState extends ConsumerState<PaymentView> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 500),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.orange[50],
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(
-                          Icons.warning_amber_rounded,
-                          color: Colors.orange[700],
-                          size: 28,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      const Expanded(
-                        child: Text(
-                          'Xác nhận thanh toán',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+        bool agreed = false;
+        int remaining = TimeConfig.paymentConfirmationDialogDuration;
+        Timer? timer;
+        bool isActive = true;
 
-                  const SizedBox(height: 24),
+        void startTimer(StateSetter setState) {
+          timer?.cancel();
+          timer = Timer.periodic(const Duration(seconds: 1), (t) {
+            if (!isActive) {
+              t.cancel();
+              return;
+            }
+            if (remaining <= 1) {
+              isActive = false;
+              t.cancel();
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop(false);
+              }
+            } else {
+              try {
+                setState(() {
+                  remaining -= 1;
+                });
+              } catch (_) {
+                isActive = false;
+                t.cancel();
+              }
+            }
+          });
+        }
 
-                  // Description
-                  Text(
-                    'Bạn có chắc chắn muốn thanh toán học phí?',
-                    style: TextStyle(fontSize: 15, color: Colors.grey[700]),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Payment details
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.blue[50],
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.blue[100]!),
-                    ),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            if (remaining == TimeConfig.paymentConfirmationDialogDuration) {
+              startTimer(setState);
+            }
+            return PopScope(
+              onPopInvoked: (didPop) {
+                isActive = false;
+                timer?.cancel();
+              },
+              child: Dialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 500),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildConfirmationRow(
-                          'Mã sinh viên',
-                          paymentState.tuition!.studentCode,
+                        // Header
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.orange[50],
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: Colors.orange[100]!),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.timer,
+                                    color: Colors.orange[700],
+                                    size: 18,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    '${remaining}s',
+                                    style: TextStyle(
+                                      color: Colors.orange[700],
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            const Expanded(
+                              child: Text(
+                                'Xác nhận thanh toán',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 12),
-                        _buildConfirmationRow(
-                          'Học kỳ',
-                          paymentState.tuition!.semesterDisplay,
-                        ),
-                        const SizedBox(height: 12),
-                        _buildConfirmationRow(
-                          'Số tiền',
-                          CurrencyFormatter.format(
-                            paymentState.tuition!.amount,
+
+                        const SizedBox(height: 24),
+
+                        // Description
+                        Text(
+                          'Bạn có chắc chắn muốn thanh toán học phí?',
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.grey[700],
                           ),
-                          isAmount: true,
                         ),
-                        const Divider(height: 24),
-                        _buildConfirmationRow(
-                          'Số dư hiện tại',
-                          CurrencyFormatter.format(user.balance),
-                        ),
-                        const SizedBox(height: 8),
-                        _buildConfirmationRow(
-                          'Số dư sau thanh toán',
-                          CurrencyFormatter.format(
-                            user.balance - paymentState.tuition!.amount,
+
+                        const SizedBox(height: 20),
+
+                        // Payment details
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.blue[50],
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.blue[100]!),
                           ),
-                          isHighlight: true,
+                          child: Column(
+                            children: [
+                              _buildConfirmationRow(
+                                'Mã sinh viên',
+                                paymentState.tuition!.studentCode,
+                              ),
+                              const SizedBox(height: 12),
+                              _buildConfirmationRow(
+                                'Học kỳ',
+                                paymentState.tuition!.semesterDisplay,
+                              ),
+                              const SizedBox(height: 12),
+                              _buildConfirmationRow(
+                                'Số tiền',
+                                CurrencyFormatter.format(
+                                  paymentState.tuition!.amount,
+                                ),
+                                isAmount: true,
+                              ),
+                              const Divider(height: 24),
+                              _buildConfirmationRow(
+                                'Số dư hiện tại',
+                                CurrencyFormatter.format(user.balance),
+                              ),
+                              const SizedBox(height: 8),
+                              _buildConfirmationRow(
+                                'Số dư sau thanh toán',
+                                CurrencyFormatter.format(
+                                  user.balance - paymentState.tuition!.amount,
+                                ),
+                                isHighlight: true,
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 18),
+
+                        // Terms and Conditions Agreement
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Checkbox(
+                              value: agreed,
+                              onChanged: (v) {
+                                setState(() {
+                                  agreed = v ?? false;
+                                });
+                              },
+                            ),
+                            Expanded(
+                              child: Wrap(
+                                alignment: WrapAlignment.start,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: [
+                                  const Text('Tôi đã đọc và đồng ý với '),
+                                  InkWell(
+                                    onTap: () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const TermsAndConditionsView(),
+                                        ),
+                                      );
+                                    },
+                                    child: Text(
+                                      'Điều khoản và Điều kiện',
+                                      style: TextStyle(
+                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 18),
+
+                        // Action buttons
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(false),
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Hủy',
+                                  style: TextStyle(fontSize: 15),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              flex: 2,
+                              child: ElevatedButton.icon(
+                                onPressed: agreed
+                                    ? () {
+                                        isActive = false;
+                                        timer?.cancel();
+                                        Navigator.of(context).pop(true);
+                                      }
+                                    : null,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                icon: const Icon(Icons.check_circle, size: 18),
+                                label: const Text(
+                                  'Xác nhận',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
-
-                  const SizedBox(height: 24),
-
-                  // Action buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextButton(
-                          onPressed: () => Navigator.of(context).pop(false),
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                          ),
-                          child: const Text(
-                            'Hủy',
-                            style: TextStyle(fontSize: 15),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        flex: 2,
-                        child: ElevatedButton.icon(
-                          onPressed: () => Navigator.of(context).pop(true),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          icon: const Icon(Icons.check_circle, size: 18),
-                          label: const Text(
-                            'Xác nhận',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );

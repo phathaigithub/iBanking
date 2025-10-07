@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/user_payment_provider.dart';
 import '../utils/app_theme.dart';
-import '../utils/payment_config.dart';
+import '../config/time_config.dart';
 
 class OtpVerificationPage extends ConsumerStatefulWidget {
   const OtpVerificationPage({super.key});
@@ -289,7 +289,7 @@ class _CountdownTimer extends ConsumerWidget {
     );
 
     final isTimeRunningOut =
-        remainingSeconds <= PaymentConfig.timeRunningOutThreshold;
+        remainingSeconds <= TimeConfig.timeRunningOutThreshold;
 
     return Container(
       width: 120,

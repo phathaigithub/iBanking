@@ -24,9 +24,6 @@ class ApiRoutes {
   static String get paymentServiceEndpoint =>
       '$_gatewayEndpoint/payment-service/api';
 
-  // Request timeout
-  static const Duration requestTimeout = Duration(seconds: 30);
-
   // Headers
   static Map<String, String> get defaultHeaders => {
     'Content-Type': 'application/json',

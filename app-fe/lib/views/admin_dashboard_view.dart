@@ -672,6 +672,11 @@ class _AdminDashboardViewState extends ConsumerState<AdminDashboardView> {
 
     if (result == true && mounted) {
       await ref.read(authProvider.notifier).logout();
+      if (mounted) {
+        Navigator.of(
+          context,
+        ).pushNamedAndRemoveUntil('/login', (route) => false);
+      }
     }
   }
 }

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../../config/api_routes.dart';
+import '../../config/time_config.dart';
 import '../../models/api/api_error.dart';
 import '../../routes/auth_routes.dart';
 import '../../routes/student_routes.dart';
@@ -34,7 +35,7 @@ class ApiClient {
             headers: headers ?? ApiRoutes.defaultHeaders,
             body: jsonEncode(body),
           )
-          .timeout(ApiRoutes.requestTimeout);
+          .timeout(TimeConfig.requestTimeout);
 
       return _handleResponse(response, url);
     } on SocketException {
@@ -68,7 +69,7 @@ class ApiClient {
     try {
       final response = await _client
           .get(Uri.parse(url), headers: headers ?? ApiRoutes.defaultHeaders)
-          .timeout(ApiRoutes.requestTimeout);
+          .timeout(TimeConfig.requestTimeout);
 
       return _handleResponse(response, url);
     } on SocketException {
