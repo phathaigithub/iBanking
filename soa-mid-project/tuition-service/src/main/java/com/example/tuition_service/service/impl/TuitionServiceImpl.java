@@ -1,5 +1,6 @@
 package com.example.tuition_service.service.impl;
 
+import com.example.common_library.dto.StudentDTO;
 import com.example.common_library.exception.ApiException;
 import com.example.common_library.exception.ErrorCode;
 import com.example.tuition_service.client.NotificationServiceClient;
@@ -218,7 +219,12 @@ public class TuitionServiceImpl implements TuitionService {
         
 
         try {
-            notificationServiceClient.sendInquiryOtp(student.getEmail(), otpCode, student.getName());
+            OtpEmailRequest request = new OtpEmailRequest();
+            request.setToEmail(student.getEmail());
+            request.setOtpCode(otpCode);
+            request.setExpireMinutes(1);
+            request.setUserName(student.getName());
+            notificationServiceClient.sendInquiryOtp(request);
         } catch (Exception e) {
             throw new ApiException(ErrorCode.INTERNAL_ERROR, 
                 "Failed to send OTP email: " + e.getMessage());

@@ -1,11 +1,11 @@
 package com.example.payment_service.controller;
 
+import com.example.common_library.dto.TuitionDTO;
 import com.example.payment_service.dto.CreatePaymentRequest;
 import com.example.payment_service.dto.TransactionHistoryDTO;
 import com.example.payment_service.dto.VerifyOtpRequest;
 import com.example.payment_service.model.Payment;
 import com.example.payment_service.service.PaymentService;
-import com.example.tuition_service.dto.TuitionDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -50,9 +50,4 @@ public class PaymentController {
         return ResponseEntity.ok(history);
     }
 
-    @GetMapping("/tuition/all")
-    public ResponseEntity<List<TuitionDTO>> getAllTuition() {
-        List<TuitionDTO> tuitionList = paymentService.getAllTuition();
-        return ResponseEntity.ok(tuitionList);
-    }
 }
