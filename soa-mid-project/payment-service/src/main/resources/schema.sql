@@ -21,7 +21,7 @@ CREATE TABLE transaction_history (
     user_id BIGINT,
     tuition_code VARCHAR(50),
     amount DECIMAL(15,2),
-    status VARCHAR(20),         -- SUCCESS, FAILED
-    message VARCHAR(255),
+    status VARCHAR(20),         
+    message TEXT,               -- Thay VARCHAR(255) thành TEXT
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

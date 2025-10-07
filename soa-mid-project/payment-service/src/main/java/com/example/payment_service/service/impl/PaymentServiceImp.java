@@ -123,10 +123,15 @@ public class PaymentServiceImp implements PaymentService {
                 userServiceClient.reserveBalance(request.getUserId(), reserveRequest);
             } catch (Exception e) {
                 // Xử lý khi không đủ số dư
-                if (e instanceof ApiException && ((ApiException)e).getErrorCode() == ErrorCode.INSUFFICIENT_BALANCE) {
+                String errorMessage = e.getMessage();
+                
+                // Kiểm tra xem lỗi có phải là INSUFFICIENT_BALANCE không
+                if (errorMessage != null && errorMessage.contains("INSUFFICIENT_BALANCE")) {
                     throw new ApiException(ErrorCode.INSUFFICIENT_BALANCE, 
                         "Số dư tài khoản không đủ hoặc đã có giao dịch đang chờ xử lý.");
                 }
+                
+                // Ném lại lỗi nếu không xác định được
                 throw e;
             }
             
@@ -407,26 +412,42 @@ public class PaymentServiceImp implements PaymentService {
 
     @Scheduled(fixedRate = 60000) // Chạy mỗi phút
     public void cleanupExpiredPayments() {
-        List<Payment> expiredPayments = paymentRepository.findByStatusAndOtpExpiredAtBefore(
-            PaymentStatus.PENDING_OTP, LocalDateTime.now());
-        
-        for (Payment payment : expiredPayments) {
-            // Giải phóng số dư đã khóa
-            try {
-                DeductBalanceRequest releaseRequest = new DeductBalanceRequest();
-                releaseRequest.setAmount(BigDecimal.valueOf(payment.getAmount()));
-                userServiceClient.releaseBalance(payment.getUserId(), releaseRequest);
-            } catch (Exception e) {
-                System.err.println("Error releasing reserved balance: " + e.getMessage());
+        try {
+            System.out.println("Running scheduled cleanup of expired payments: " + LocalDateTime.now());
+            
+            List<Payment> expiredPayments = paymentRepository.findByStatusAndOtpExpiredAtBefore(
+                PaymentStatus.PENDING_OTP, LocalDateTime.now());
+                
+            System.out.println("Found " + expiredPayments.size() + " expired payments");
+            
+            for (Payment payment : expiredPayments) {
+                System.out.println("Processing expired payment ID: " + payment.getId() + 
+                    ", expired at: " + payment.getOtpExpiredAt());
+                    
+                // Giải phóng số dư đã khóa
+                try {
+                    DeductBalanceRequest releaseRequest = new DeductBalanceRequest();
+                    releaseRequest.setAmount(BigDecimal.valueOf(payment.getAmount()));
+                    userServiceClient.releaseBalance(payment.getUserId(), releaseRequest);
+                    System.out.println("Released reserved balance for payment ID: " + payment.getId());
+                } catch (Exception e) {
+                    System.err.println("Error releasing reserved balance: " + e.getMessage());
+                }
+                
+                payment.setStatus(PaymentStatus.FAILED);
+                paymentRepository.save(payment);
+                System.out.println("Updated payment status to FAILED for ID: " + payment.getId());
+                
+                saveTransactionHistory(payment, "FAILED", "OTP expired automatically");
+                System.out.println("Saved transaction history for expired payment ID: " + payment.getId());
+                
+                // Xóa OTP từ Redis
+                String redisKey = OTP_PREFIX + payment.getId();
+                redisTemplate.delete(redisKey);
             }
-            
-            payment.setStatus(PaymentStatus.FAILED);
-            paymentRepository.save(payment);
-            saveTransactionHistory(payment, "FAILED", "OTP expired automatically");
-            
-            // Xóa OTP từ Redis
-            String redisKey = OTP_PREFIX + payment.getId();
-            redisTemplate.delete(redisKey);
+        } catch (Exception e) {
+            System.err.println("Error in cleanup task: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
