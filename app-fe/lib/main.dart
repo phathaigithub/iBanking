@@ -6,6 +6,7 @@ import 'providers/auth_provider.dart';
 import 'views/login_view.dart';
 import 'views/user_dashboard_view.dart';
 import 'views/admin_dashboard_view.dart';
+import 'views/terms_and_conditions_view.dart';
 import 'views/api_test_view.dart';
 import 'views/json_parse_test_view.dart';
 import 'utils/app_theme.dart';
@@ -43,6 +44,7 @@ class MainApp extends ConsumerWidget {
         '/login': (context) => const LoginView(),
         '/user': (context) => const UserDashboardView(),
         '/admin': (context) => const AdminDashboardView(),
+        '/terms': (context) => const TermsAndConditionsView(),
         '/api-test': (context) => const ApiTestWidget(),
         '/json-test': (context) => const JsonParseTestWidget(),
       },

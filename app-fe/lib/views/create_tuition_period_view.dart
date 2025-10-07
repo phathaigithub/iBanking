@@ -45,6 +45,7 @@ class _CreateTuitionPeriodViewState
   @override
   void dispose() {
     _amountController.dispose();
+    // Cancel any pending microtasks/delayed callbacks by ensuring no setState after dispose
     super.dispose();
   }
 
@@ -415,7 +416,7 @@ class _CreateTuitionPeriodViewState
   }
 
   Future<void> _selectDate(CreateTuitionPeriodNotifier notifier) async {
-    final minDate = DateTime.now().add(const Duration(days: 7));
+    final minDate = DateTime.now().add(const Duration(days: 8));
     final selectedDate = await showDatePicker(
       context: context,
       initialDate: minDate,
@@ -450,8 +451,9 @@ class _CreateTuitionPeriodViewState
         // Could not refresh tuition data: $e
       }
 
-      // Reset form after success
+      // Reset form after success (guard against disposed state)
       Future.delayed(const Duration(seconds: 2), () {
+        if (!mounted) return;
         _handleReset(notifier);
       });
     }
@@ -564,6 +566,7 @@ class _CreateTuitionPeriodViewState
   }
 
   void _handleReset(CreateTuitionPeriodNotifier notifier) {
+    if (!mounted) return;
     setState(() {
       _selectedDate = null;
     });

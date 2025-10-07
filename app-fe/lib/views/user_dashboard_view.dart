@@ -7,6 +7,9 @@ import 'payment_view.dart';
 import 'tuition_lookup_view.dart';
 import 'payment_history_view.dart';
 import 'account_info_view.dart';
+import '../providers/user_payment_provider.dart';
+import '../providers/tuition_inquiry_provider.dart';
+import '../providers/payment_history_provider.dart';
 
 class UserDashboardView extends ConsumerStatefulWidget {
   const UserDashboardView({super.key});
@@ -245,38 +248,43 @@ class _UserDashboardViewState extends ConsumerState<UserDashboardView> {
     final isSelected = _currentIndex == index;
 
     return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? AppColors.primary.withValues(alpha: 0.1)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                color: isSelected ? AppColors.primary : Colors.grey[600],
-                size: 24,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: () {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? AppColors.primary.withValues(alpha: 0.1)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  icon,
                   color: isSelected ? AppColors.primary : Colors.grey[600],
+                  size: 24,
                 ),
-              ),
-            ],
+                const SizedBox(height: 4),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: isSelected
+                        ? FontWeight.w600
+                        : FontWeight.normal,
+                    color: isSelected ? AppColors.primary : Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -307,6 +315,10 @@ class _UserDashboardViewState extends ConsumerState<UserDashboardView> {
     if (result == true && mounted) {
       await ref.read(authProvider.notifier).logout();
       if (mounted) {
+        // Invalidate session-scoped states
+        ref.invalidate(userPaymentProvider);
+        ref.invalidate(tuitionInquiryProvider);
+        ref.invalidate(paymentHistoryProvider);
         Navigator.of(context).pushReplacementNamed('/login');
       }
     }

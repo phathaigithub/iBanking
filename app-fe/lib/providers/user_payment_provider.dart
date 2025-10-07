@@ -7,7 +7,7 @@ import '../services/api/tuition_api_service.dart';
 import '../services/api/payment_api_service.dart';
 import '../services/api/api_client.dart';
 import '../providers/auth_provider.dart';
-import '../utils/payment_config.dart';
+import '../config/time_config.dart';
 
 // Provider for ApiClient
 final apiClientProvider = Provider<ApiClient>((ref) {
@@ -138,7 +138,7 @@ class UserPaymentNotifier extends StateNotifier<UserPaymentState> {
       // Start countdown using config
       state = state.copyWith(
         tuition: tuition,
-        remainingSeconds: PaymentConfig.tuitionCardDisplayDuration,
+        remainingSeconds: TimeConfig.tuitionCardDisplayDuration,
         isLoading: false,
       );
 
@@ -229,7 +229,7 @@ class UserPaymentNotifier extends StateNotifier<UserPaymentState> {
         currentStep: PaymentStep.otpVerification,
         remainingSeconds: remainingSeconds > 0
             ? remainingSeconds
-            : PaymentConfig.otpVerificationDuration,
+            : TimeConfig.otpVerificationDuration,
         isLoading: false,
         clearOtpAttempts: true, // Reset OTP attempts for new payment
       );

@@ -61,7 +61,7 @@ class _TuitionLookupViewState extends ConsumerState<TuitionLookupView> {
       }
     });
 
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -618,75 +618,122 @@ class _ResultDialog extends ConsumerWidget {
                   )
                 else
                   ...result.tuitions.map((tuition) {
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: tuition.isPaid
-                              ? Colors.green[200]!
-                              : Colors.orange[200]!,
-                          width: 2,
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
+                    return Stack(
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: tuition.isPaid
+                                  ? Colors.green[200]!
+                                  : Colors.orange[200]!,
+                              width: 2,
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: Text(
-                                  tuition.semesterDisplay,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      tuition.semesterDisplay,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: tuition.isPaid
+                                          ? Colors.green[100]
+                                          : Colors.orange[100],
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(
+                                      tuition.status,
+                                      style: TextStyle(
+                                        color: tuition.isPaid
+                                            ? Colors.green[700]
+                                            : Colors.orange[700],
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      'Mã học phí: ${tuition.tuitionId}',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Số tiền: ${currencyFormat.format(tuition.amount)}',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: tuition.isPaid
-                                      ? Colors.green[100]
-                                      : Colors.orange[100],
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  tuition.status,
-                                  style: TextStyle(
-                                    color: tuition.isPaid
-                                        ? Colors.green[700]
-                                        : Colors.orange[700],
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 12,
-                                  ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Hạn đóng: ${_formatDate(tuition.dueDate)}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Số tiền: ${currencyFormat.format(tuition.amount)}',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
+                        ),
+                        Positioned(
+                          right: 12,
+                          bottom: 24,
+                          child: Material(
+                            color: Colors.white,
+                            shape: const CircleBorder(),
+                            elevation: 2,
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.copy,
+                                size: 18,
+                                color: Colors.grey[700],
+                              ),
+                              tooltip: 'Sao chép mã học phí',
+                              onPressed: () async {
+                                await Clipboard.setData(
+                                  ClipboardData(text: tuition.tuitionId),
+                                );
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Đã sao chép mã học phí'),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              },
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Hạn đóng: ${_formatDate(tuition.dueDate)}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     );
                   }),
 

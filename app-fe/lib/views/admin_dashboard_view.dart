@@ -13,6 +13,9 @@ import '../providers/admin_tuition_provider.dart';
 import '../models/api/tuition_response.dart';
 import '../utils/app_theme.dart';
 import 'create_tuition_period_view.dart';
+import '../providers/user_payment_provider.dart';
+import '../providers/tuition_inquiry_provider.dart';
+import '../providers/payment_history_provider.dart';
 
 class AdminDashboardView extends ConsumerStatefulWidget {
   const AdminDashboardView({super.key});
@@ -672,6 +675,15 @@ class _AdminDashboardViewState extends ConsumerState<AdminDashboardView> {
 
     if (result == true && mounted) {
       await ref.read(authProvider.notifier).logout();
+      // Invalidate session states used across app (safety)
+      ref.invalidate(userPaymentProvider);
+      ref.invalidate(tuitionInquiryProvider);
+      ref.invalidate(paymentHistoryProvider);
+      if (mounted) {
+        Navigator.of(
+          context,
+        ).pushNamedAndRemoveUntil('/login', (route) => false);
+      }
     }
   }
 }
