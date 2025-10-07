@@ -11,5 +11,6 @@ CREATE TABLE user (
     full_name VARCHAR(100),
     phone VARCHAR(20),
     balance DECIMAL(10,2) DEFAULT 0.00,
+    pending_amount DECIMAL(10,2) DEFAULT 0.00,
     role VARCHAR(10) NOT NULL DEFAULT 'USER'  -- Đổi từ ENUM thành VARCHAR
 );

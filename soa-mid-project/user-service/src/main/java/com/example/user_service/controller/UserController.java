@@ -29,4 +29,20 @@ public class UserController {
         userService.deductBalance(userId, request.getAmount());
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/{userId}/reserve-balance")
+    public ResponseEntity<Void> reserveBalance(
+            @PathVariable("userId") Long userId,
+            @RequestBody DeductBalanceRequest request) {
+        userService.reserveBalance(userId, request.getAmount());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{userId}/release-balance")
+    public ResponseEntity<Void> releaseBalance(
+            @PathVariable("userId") Long userId,
+            @RequestBody DeductBalanceRequest request) {
+        userService.releaseReservedBalance(userId, request.getAmount());
+        return ResponseEntity.ok().build();
+    }
 }

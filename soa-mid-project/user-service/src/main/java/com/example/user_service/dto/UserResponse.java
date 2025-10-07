@@ -19,4 +19,5 @@ public class UserResponse {
     private String fullName;
     private String phone;
     private BigDecimal balance;
+    private BigDecimal pendingAmount;
 }

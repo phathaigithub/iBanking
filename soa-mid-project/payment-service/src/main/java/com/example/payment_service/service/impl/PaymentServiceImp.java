@@ -19,6 +19,7 @@ import com.example.payment_service.repository.TransactionHistoryRepository;
 import com.example.payment_service.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -112,13 +113,23 @@ public class PaymentServiceImp implements PaymentService {
             if (user.getEmail() == null || user.getEmail().isEmpty()) {
                 throw new ApiException(ErrorCode.USER_EMAIL_NOT_FOUND);
             }
-            
-            // Kiểm tra số dư user phải >= amount
-            if (user.getBalance() == null || user.getBalance().compareTo(paymentAmount) < 0) {
-                throw new ApiException(ErrorCode.INSUFFICIENT_BALANCE, 
-                    "Số dư tài khoản không đủ để thanh toán.");
-            }
 
+            
+            // Khóa tạm thời số dư ngay khi tạo giao dịch
+            DeductBalanceRequest reserveRequest = new DeductBalanceRequest();
+            reserveRequest.setAmount(paymentAmount);
+            
+            try {
+                userServiceClient.reserveBalance(request.getUserId(), reserveRequest);
+            } catch (Exception e) {
+                // Xử lý khi không đủ số dư
+                if (e instanceof ApiException && ((ApiException)e).getErrorCode() == ErrorCode.INSUFFICIENT_BALANCE) {
+                    throw new ApiException(ErrorCode.INSUFFICIENT_BALANCE, 
+                        "Số dư tài khoản không đủ hoặc đã có giao dịch đang chờ xử lý.");
+                }
+                throw e;
+            }
+            
             // Sinh OTP
             String otp = String.valueOf(100000 + new Random().nextInt(900000));
             
@@ -149,7 +160,18 @@ public class PaymentServiceImp implements PaymentService {
             return payment;
             
         } catch (ApiException e) {
-            // Xử lý lỗi nghiệp vụ
+            // Nếu có lỗi nghiệp vụ, giải phóng số dư đã khóa (nếu có)
+            try {
+                if (request.getUserId() != null && request.getAmount() > 0) {
+                    DeductBalanceRequest releaseRequest = new DeductBalanceRequest();
+                    releaseRequest.setAmount(BigDecimal.valueOf(request.getAmount()));
+                    userServiceClient.releaseBalance(request.getUserId(), releaseRequest);
+                }
+            } catch (Exception ignored) {
+                // Không xử lý lỗi khi giải phóng số dư
+            }
+            
+            // Xử lý lỗi như hiện tại...
             Payment failedPayment = new Payment();
             failedPayment.setUserId(request.getUserId());
             failedPayment.setTuitionCode(request.getTuitionCode());
@@ -161,7 +183,18 @@ public class PaymentServiceImp implements PaymentService {
             throw e;
             
         } catch (Exception e) {
-            // Xử lý lỗi hệ thống
+            // Nếu có lỗi hệ thống, giải phóng số dư đã khóa (nếu có)
+            try {
+                if (request.getUserId() != null && request.getAmount() > 0) {
+                    DeductBalanceRequest releaseRequest = new DeductBalanceRequest();
+                    releaseRequest.setAmount(BigDecimal.valueOf(request.getAmount()));
+                    userServiceClient.releaseBalance(request.getUserId(), releaseRequest);
+                }
+            } catch (Exception ignored) {
+                // Không xử lý lỗi khi giải phóng số dư
+            }
+            
+            // Xử lý lỗi như hiện tại...
             Payment failedPayment = new Payment();
             failedPayment.setUserId(request.getUserId());
             failedPayment.setTuitionCode(request.getTuitionCode());
@@ -218,6 +251,16 @@ public class PaymentServiceImp implements PaymentService {
                 payment.setStatus(PaymentStatus.FAILED);
                 paymentRepository.save(payment);
                 saveTransactionHistory(payment, "FAILED", "Too many invalid OTP attempts");
+                
+                // Xử lý OTP sai như hiện tại...
+                try {
+                    DeductBalanceRequest releaseRequest = new DeductBalanceRequest();
+                    releaseRequest.setAmount(BigDecimal.valueOf(payment.getAmount()));
+                    userServiceClient.releaseBalance(payment.getUserId(), releaseRequest);
+                } catch (Exception ignored) {
+                    // Không xử lý lỗi khi giải phóng số dư
+                }
+                
                 throw new ApiException(ErrorCode.OTP_INVALID, "Bạn đã nhập sai OTP quá nhiều lần. Giao dịch bị từ chối.");
             }
             
@@ -226,7 +269,7 @@ public class PaymentServiceImp implements PaymentService {
         }
         
         try {
-            // Trừ số dư user qua UserService
+            // Trừ số dư user qua UserService - số dư đã được khóa trước đó
             DeductBalanceRequest deductRequest = new DeductBalanceRequest();
             deductRequest.setAmount(BigDecimal.valueOf(payment.getAmount()));
             userServiceClient.deductBalance(payment.getUserId(), deductRequest);
@@ -257,6 +300,15 @@ public class PaymentServiceImp implements PaymentService {
             return true;
             
         } catch (Exception e) {
+            // Nếu lỗi khi trừ tiền, giải phóng số dư đã khóa
+            try {
+                DeductBalanceRequest releaseRequest = new DeductBalanceRequest();
+                releaseRequest.setAmount(BigDecimal.valueOf(payment.getAmount()));
+                userServiceClient.releaseBalance(payment.getUserId(), releaseRequest);
+            } catch (Exception ignored) {
+                // Không xử lý lỗi khi giải phóng số dư
+            }
+            
             payment.setStatus(PaymentStatus.FAILED);
             paymentRepository.save(payment);
             redisTemplate.delete(redisKey);
@@ -353,5 +405,28 @@ public class PaymentServiceImp implements PaymentService {
         }
     }
 
-    
+    @Scheduled(fixedRate = 60000) // Chạy mỗi phút
+    public void cleanupExpiredPayments() {
+        List<Payment> expiredPayments = paymentRepository.findByStatusAndOtpExpiredAtBefore(
+            PaymentStatus.PENDING_OTP, LocalDateTime.now());
+        
+        for (Payment payment : expiredPayments) {
+            // Giải phóng số dư đã khóa
+            try {
+                DeductBalanceRequest releaseRequest = new DeductBalanceRequest();
+                releaseRequest.setAmount(BigDecimal.valueOf(payment.getAmount()));
+                userServiceClient.releaseBalance(payment.getUserId(), releaseRequest);
+            } catch (Exception e) {
+                System.err.println("Error releasing reserved balance: " + e.getMessage());
+            }
+            
+            payment.setStatus(PaymentStatus.FAILED);
+            paymentRepository.save(payment);
+            saveTransactionHistory(payment, "FAILED", "OTP expired automatically");
+            
+            // Xóa OTP từ Redis
+            String redisKey = OTP_PREFIX + payment.getId();
+            redisTemplate.delete(redisKey);
+        }
+    }
 }

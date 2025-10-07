@@ -44,17 +44,58 @@ public class UserServiceImpl implements UserService {
                 .fullName(user.getFullName())
                 .phone(user.getPhone())
                 .balance(user.getBalance())
+                .pendingAmount(user.getPendingAmount() != null ? user.getPendingAmount() : BigDecimal.ZERO)
                 .build();
     }
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    public void reserveBalance(Long userId, BigDecimal amount) {
+        User user = userRepository.findByIdForUpdate(userId)
+            .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+        
+        BigDecimal availableBalance = user.getBalance().subtract(user.getPendingAmount());
+        if (availableBalance.compareTo(amount) < 0) {
+            throw new ApiException(ErrorCode.INSUFFICIENT_BALANCE, 
+                "Số dư khả dụng không đủ. Bạn có giao dịch đang chờ xử lý.");
+        }
+        
+        user.setPendingAmount(user.getPendingAmount().add(amount));
+        userRepository.save(user);
+    }
+    
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    public void releaseReservedBalance(Long userId, BigDecimal amount) {
+        User user = userRepository.findByIdForUpdate(userId)
+            .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+            
+        BigDecimal newPendingAmount = user.getPendingAmount().subtract(amount);
+        if (newPendingAmount.compareTo(BigDecimal.ZERO) < 0) {
+            newPendingAmount = BigDecimal.ZERO;
+        }
+        
+        user.setPendingAmount(newPendingAmount);
+        userRepository.save(user);
+    }
+    
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public void deductBalance(Long userId, BigDecimal amount) {
         User user = userRepository.findByIdForUpdate(userId)
             .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+            
         if (user.getBalance().compareTo(amount) < 0) {
             throw new ApiException(ErrorCode.INSUFFICIENT_BALANCE);
         }
+        
+        // Trừ số dư
         user.setBalance(user.getBalance().subtract(amount));
+        
+        // Giảm số tiền đang chờ xử lý
+        BigDecimal newPendingAmount = user.getPendingAmount().subtract(amount);
+        if (newPendingAmount.compareTo(BigDecimal.ZERO) < 0) {
+            newPendingAmount = BigDecimal.ZERO;
+        }
+        user.setPendingAmount(newPendingAmount);
+        
         userRepository.save(user);
     }
 

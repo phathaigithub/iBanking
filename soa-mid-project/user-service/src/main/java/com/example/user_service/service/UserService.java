@@ -16,4 +16,7 @@ public interface UserService {
 
     void deductBalance(Long userId, BigDecimal amount);
 
+    void reserveBalance(Long userId, BigDecimal amount);
+
+    void releaseReservedBalance(Long userId, BigDecimal amount);
 }

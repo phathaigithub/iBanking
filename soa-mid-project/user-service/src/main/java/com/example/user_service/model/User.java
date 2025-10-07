@@ -35,7 +35,15 @@ public class User {
     @Column(precision = 10, scale = 2)
     private BigDecimal balance = BigDecimal.ZERO;
     
+    @Column(name = "pending_amount")
+    private BigDecimal pendingAmount = BigDecimal.ZERO;
+    
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private Role role = Role.USER;
+
+    // Phương thức kiểm tra số dư thực
+    public BigDecimal getAvailableBalance() {
+        return this.balance.subtract(pendingAmount);
+    }
 }
