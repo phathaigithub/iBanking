@@ -208,6 +208,14 @@ services:
       - soa-mid-tui-ibank
     restart: unless-stopped
 
+  common-library:
+    build:
+      context: ./soa-mid-project
+      dockerfile: common-library/Dockerfile
+    container_name: ibanking-common-library
+    networks:
+      - soa-mid-tui-ibank
+
   # ============================================
   # FRONTEND
   # ============================================
