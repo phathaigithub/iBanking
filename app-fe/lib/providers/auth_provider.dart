@@ -20,8 +20,9 @@ final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
   throw UnimplementedError('SharedPreferences must be initialized in main()');
 });
 
-// Token storage keys
+// Storage keys
 const String _tokenKey = 'auth_token';
+const String _lastUsernameKey = 'last_username';
 
 // Auth State
 class AuthState {
@@ -64,22 +65,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> _initializeAuth() async {
-    final token = _prefs.getString(_tokenKey);
-    if (token != null && token.isNotEmpty) {
-      try {
-        state = state.copyWith(isLoading: true, clearError: true);
-        final user = await _authApiService.getCurrentUser(token);
-        state = state.copyWith(token: token, user: user, isLoading: false);
-      } catch (e) {
-        // Token is invalid, clear it
-        await _prefs.remove(_tokenKey);
-        state = state.copyWith(
-          isLoading: false,
-          clearToken: true,
-          clearUser: true,
-        );
-      }
+    // Security policy: always require re-login on app start
+    if (_prefs.getString(_tokenKey) != null) {
+      await _prefs.remove(_tokenKey);
     }
+    state = AuthState();
   }
 
   Future<bool> login(String username, String password) async {
@@ -95,8 +85,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
       // Step 2: Get user data
       final user = await _authApiService.getCurrentUser(authResponse.token);
 
-      // Step 3: Save token
+      // Step 3: Save token for in-session usage (cleared on next app start)
       await _prefs.setString(_tokenKey, authResponse.token);
+      // Save last username to prefill login next time
+      await _prefs.setString(_lastUsernameKey, username);
 
       // Step 4: Update state
       state = state.copyWith(

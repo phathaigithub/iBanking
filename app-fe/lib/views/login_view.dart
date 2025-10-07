@@ -40,6 +40,13 @@ class _LoginViewState extends ConsumerState<LoginView>
         );
     _animationController.forward();
 
+    // Prefill last username if available
+    final prefs = ref.read(sharedPreferencesProvider);
+    final lastUsername = prefs.getString('last_username');
+    if (lastUsername != null && lastUsername.isNotEmpty) {
+      _usernameController.text = lastUsername;
+    }
+
     // Listen for auth state changes and navigate accordingly
     ref.listenManual(authProvider, (previous, next) {
       if (next.isAuthenticated && mounted) {
